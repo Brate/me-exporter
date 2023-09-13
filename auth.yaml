@@ -1,0 +1,8 @@
+---
+auth:
+  - instance: 1.2.3.4
+    url: https://1.2.3.4/api
+    hash: 09304snaijda-jdsiji21
+  - instance: 1.2.3.5
+    url: https://1.2.3.5/api
+    hash: 09304snaijda-jdsiji21
