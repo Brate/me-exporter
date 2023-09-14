@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type ControllerStatistics struct {
@@ -13,25 +14,27 @@ type ControllerStatistics struct {
 	Meta       string `json:"meta"`
 	DurableID  string `json:"durable-id"`
 
-	CPULoad                  int    `json:"cpu-load"`
-	PowerOnTime              int    `json:"power-on-time"`
-	WriteCacheUsed           int    `json:"write-cache-used"`
-	BytesPerSecond           string `json:"bytes-per-second"`
-	BytesPerSecondNumeric    int    `json:"bytes-per-second-numeric"`
-	Iops                     int    `json:"iops"`
-	NumberOfReads            int64  `json:"number-of-reads"`
-	ReadCacheHits            int64  `json:"read-cache-hits"`
-	ReadCacheMisses          int64  `json:"read-cache-misses"`
-	NumberOfWrites           int64  `json:"number-of-writes"`
-	WriteCacheHits           int64  `json:"write-cache-hits"`
-	WriteCacheMisses         int64  `json:"write-cache-misses"`
-	DataRead                 string `json:"data-read"`
-	DataReadNumeric          int64  `json:"data-read-numeric"`
-	DataWritten              string `json:"data-written"`
-	DataWrittenNumeric       int64  `json:"data-written-numeric"`
-	NumForwardedCmds         int    `json:"num-forwarded-cmds"`
-	ResetTime                string `json:"reset-time"`
-	ResetTimeNumeric         int    `json:"reset-time-numeric"`
+	CPULoad               int    `json:"cpu-load"`
+	PowerOnTime           int    `json:"power-on-time"`
+	WriteCacheUsed        int    `json:"write-cache-used"`
+	BytesPerSecond        string `json:"bytes-per-second"`
+	BytesPerSecondNumeric int    `json:"bytes-per-second-numeric"`
+	Iops                  int    `json:"iops"`
+	NumberOfReads         int64  `json:"number-of-reads"`
+	ReadCacheHits         int64  `json:"read-cache-hits"`
+	ReadCacheMisses       int64  `json:"read-cache-misses"`
+	NumberOfWrites        int64  `json:"number-of-writes"`
+	WriteCacheHits        int64  `json:"write-cache-hits"`
+	WriteCacheMisses      int64  `json:"write-cache-misses"`
+	DataRead              string `json:"data-read"`
+	DataReadNumeric       int64  `json:"data-read-numeric"`
+	DataWritten           string `json:"data-written"`
+	DataWrittenNumeric    int64  `json:"data-written-numeric"`
+	NumForwardedCmds      int    `json:"num-forwarded-cmds"`
+	ResetTime             string `json:"reset-time"`
+	ResetTimeNumeric      int    `json:"reset-time-numeric"`
+	TimeSinceStatsReset   int64
+
 	StartSampleTime          string `json:"start-sample-time"`
 	StartSampleTimeNumeric   int    `json:"start-sample-time-numeric"`
 	StopSampleTime           string `json:"stop-sample-time"`
@@ -71,9 +74,11 @@ func (scs *httpControllerStatistics) FromJson(body []byte) error {
 		return err
 	}
 
-	scs.ControllerStatistics[0].TotalPowerOnHoursNumeric, _ =
-		strconv.ParseFloat(scs.ControllerStatistics[0].TotalPowerOnHoursString, 64)
-
+	for _, controller := range scs.ControllerStatistics {
+		controller.TotalPowerOnHoursNumeric, _ =
+			strconv.ParseFloat(controller.TotalPowerOnHoursString, 64)
+		controller.TimeSinceStatsReset = time.Now().Unix() - int64(controller.ResetTimeNumeric)
+	}
 	return nil
 }
 
