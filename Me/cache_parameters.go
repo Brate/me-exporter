@@ -10,6 +10,7 @@ import (
 type CacheSettings struct {
 	ObjectName                string                      `json:"object-name"`
 	Meta                      string                      `json:"meta"`
+	DurableID                 string                      `json:"durable-id"`
 	OperationMode             string                      `json:"operation-mode"`
 	OperationModeNumeric      int                         `json:"operation-mode-numeric"`
 	PiFormat                  string                      `json:"pi-format"`
