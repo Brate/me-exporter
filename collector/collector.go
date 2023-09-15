@@ -61,7 +61,7 @@ type MeMetrics struct {
 	serviceTag Me.ServiceTagInfo
 
 	controllerStatistics Me.ControllerStatistics
-	cacheSettings        Me.CacheSettings
+	cacheSettings        Me.SystemCacheSettings
 	diskGroupStatistics  Me.DiskGroupStatistics
 	diskGroups           Me.Disk
 	diskStatistic        Me.DiskStatistic
