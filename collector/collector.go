@@ -137,9 +137,13 @@ func FlushMECollectors() {
 func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(factories))
+
+	pool := make(chan struct{}, 4) // 4 workers
 	for name, coletor := range coletores {
 		go func(name string, col Coletor) {
+			pool <- struct{}{}
 			execute(name, col, ch, c.logger)
+			<-pool // release a worker
 			wg.Done()
 		}(name, coletor)
 	}
