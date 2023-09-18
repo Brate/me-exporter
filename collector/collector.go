@@ -12,6 +12,7 @@ import (
 	"me_exporter/config"
 	"net/http"
 	"sync"
+	"time"
 )
 
 const (
@@ -614,6 +615,7 @@ func (me *MeMetrics) Me4Request(url string) (req *http.Request, err error) {
 }
 func (me *MeMetrics) NewClient() (client *http.Client) {
 	client = &http.Client{
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
