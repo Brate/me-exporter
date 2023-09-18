@@ -13,6 +13,11 @@ import (
 	"syscall"
 )
 
+var (
+	sha1ver string
+	Version = "0.0.0.dev"
+)
+
 func main() {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGHUP)

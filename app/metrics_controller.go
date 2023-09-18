@@ -36,14 +36,14 @@ func NewMetricsController(logger log.Logger) *metricsController {
 
 func (m *metricsController) Handler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
-	instance := params.Get("instance")
+	target := params.Get("target")
 
-	if err := validateIP(instance); err != nil {
+	if err := validateIP(target); err != nil {
 		helpers.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	col := getMetricsCollector(instance, m.logger)
+	col := getMetricsCollector(target, m.logger)
 	registry := prometheus.NewRegistry()
 	err := registry.Register(col.collector)
 	if err != nil {
