@@ -63,7 +63,7 @@ type MeMetrics struct {
 
 	controllerStatistics Me.ControllerStatistics
 	cacheSettings        Me.SystemCacheSettings
-	diskGroupStatistics  Me.DiskGroupStatistics
+	diskGroupsStatistics []Me.DiskGroupStatistics
 	diskGroups           Me.Disk
 	diskStatistic        Me.DiskStatistic
 	disks                Me.Drives
@@ -276,9 +276,9 @@ func (me *MeMetrics) DiskGroupStatistics() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4DiskGroupStatisticsFromRequest(client, req)
+	stats, err := Me.NewMe4DiskGroupStatisticsFromRequest(client, req)
 	if err == nil {
-		me.diskGroupStatistics = xxx[0]
+		me.diskGroupsStatistics = stats
 	}
 	return
 }

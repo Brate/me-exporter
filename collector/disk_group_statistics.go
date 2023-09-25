@@ -8,24 +8,20 @@ import (
 type diskGroupStatistics struct {
 	meSession       *MeMetrics
 	timeSinceReset  descMétrica
-	timeSinceSample descMétrica
 	numberOfReads   descMétrica
 	numberOfWrites  descMétrica
 	dataRead        descMétrica
 	dataWritten     descMétrica
-	bytesPerSecond  descMétrica
-	iops            descMétrica
 	avgRspTime      descMétrica
 	avgReadRspTime  descMétrica
 	AvgWriteRspTime descMétrica
 
 	// Disk Group Statistics Paged
-	dgdpserialNumber       descMétrica
-	pagesAllocPerMinute    descMétrica
-	pagesDeallocPerMinute  descMétrica
-	pagesReclaimed         descMétrica
-	numPagesUnmapPerMinute descMétrica
-	logger                 log.Logger
+	pagesAllocPerMinute   descMétrica
+	pagesDeallocPerMinute descMétrica
+	pagesReclaimed        descMétrica
+	pagesUnmapPerMinute   descMétrica
+	logger                log.Logger
 }
 
 func init() {
@@ -37,84 +33,65 @@ func NewDiskGroupStatisticsCollector(me *MeMetrics, logger log.Logger) (Coletor,
 		meSession: me,
 		timeSinceReset: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "time_since_reset"),
-				"Time since reset", []string{"time_since_reset"}),
-		},
-		timeSinceSample: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_group_statistics", "time_since_sample"),
-				"Time since sample", []string{"time_since_sample"}),
+				NomeMetrica("disk_group", "time_since_reset_seconds"),
+				"Time since reset", []string{"disk_group"}),
 		},
 		numberOfReads: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "number_of_reads"),
-				"Number of reads", []string{"number_of_reads"}),
+				NomeMetrica("disk_group", "read_count"),
+				"Number of reads", []string{"disk_group"}),
 		},
 		numberOfWrites: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "number_of_writes"),
-				"Number of writes", []string{"number_of_writes"}),
+				NomeMetrica("disk_group", "write_count"),
+				"Number of writes", []string{"disk_group"}),
 		},
-		dataRead: descMétrica{prometheus.GaugeValue,
+		dataRead: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "data_read"),
-				"Data read numeric", []string{"data_read"}),
+				NomeMetrica("disk_group", "data_read_bytes"),
+				"Data read numeric", []string{"disk_group"}),
 		},
-		dataWritten: descMétrica{prometheus.GaugeValue,
+		dataWritten: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "data_written"),
-				"Data written numeric", []string{"data_written"}),
-		},
-		bytesPerSecond: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_group_statistics", "bytes_per_second"),
-				"Bytes per second numeric", []string{"bytes_per_second"}),
-		},
-		iops: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_group_statistics", "iops"),
-				"Iops", []string{"iops"}),
+				NomeMetrica("disk_group", "data_written_bytes"),
+				"Data written numeric", []string{"disk_group"}),
 		},
 		avgRspTime: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "avg_rsp_time"),
-				"Avg rsp time", []string{"avg_rsp_time"}),
+				NomeMetrica("disk_group", "avg_response_microseconds"),
+				"Avg rsp time", []string{"disk_group"}),
 		},
 		avgReadRspTime: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "avg_read_rsp_time"),
-				"Avg read rsp time", []string{"avg_read_rsp_time"}),
+				NomeMetrica("disk_group", "avg_read_response_microseconds"),
+				"Avg read rsp time", []string{"disk_group"}),
 		},
 		AvgWriteRspTime: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics", "avg_write_rsp_time"),
-				"Avg write rsp time", []string{"avg_write_rsp_time"}),
+				NomeMetrica("disk_group", "avg_write_response_microseconds"),
+				"Avg write rsp time", []string{"disk_group"}),
 		},
+
 		// Disk Group Statistics Paged
-		dgdpserialNumber: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_group_statistics_paged", "serial_number"),
-				"Serial number of the disk group", []string{"serial_number"}),
-		},
 		pagesAllocPerMinute: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics_paged", "pages_alloc_per_minute"),
-				"Pages alloc per minute", []string{"pages_alloc_per_minute"}),
+				NomeMetrica("disk_group", "pages_alloc_per_minute"),
+				"Pages allocations per minute", []string{"disk_group"}),
 		},
 		pagesDeallocPerMinute: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics_paged", "pages_dealloc_per_minute"),
-				"Pages dealloc per minute", []string{"pages_dealloc_per_minute"}),
+				NomeMetrica("disk_group", "pages_dealloc_per_minute"),
+				"Pages deallocations per minute", []string{"disk_group"}),
 		},
-		pagesReclaimed: descMétrica{prometheus.GaugeValue,
+		pagesReclaimed: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics_paged", "pages_reclaimed"),
-				"Pages reclaimed", []string{"pages_reclaimed"}),
+				NomeMetrica("disk_group", "pages_reclaimed"),
+				"Pages reclaimed", []string{"disk_group"}),
 		},
-		numPagesUnmapPerMinute: descMétrica{prometheus.GaugeValue,
+		pagesUnmapPerMinute: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_group_statistics_paged", "num_pages_unmap_per_minute"),
-				"Num pages unmap per minute", []string{"num_pages_unmap_per_minute"}),
+				NomeMetrica("disk_group", "pages_unmap_per_minute"),
+				"Num pages unmapped per minute", []string{"disk_group"}),
 		},
 		logger: logger,
 	}, nil
@@ -125,27 +102,23 @@ func (dk *diskGroupStatistics) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	s := dk.meSession.diskGroupStatistics
+	for _, dgs := range dk.meSession.diskGroupsStatistics {
+		ch <- prometheus.MustNewConstMetric(dk.timeSinceReset.desc, dk.timeSinceReset.tipo, float64(dgs.TimeSinceReset), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.numberOfReads.desc, dk.numberOfReads.tipo, float64(dgs.NumberOfReads), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.numberOfWrites.desc, dk.numberOfWrites.tipo, float64(dgs.NumberOfWrites), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.dataRead.desc, dk.dataRead.tipo, float64(dgs.DataReadNumeric), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.dataWritten.desc, dk.dataWritten.tipo, float64(dgs.DataWrittenNumeric), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.avgRspTime.desc, dk.avgRspTime.tipo, float64(dgs.AvgRspTime), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.avgReadRspTime.desc, dk.avgReadRspTime.tipo, float64(dgs.AvgReadRspTime), dgs.Name)
+		ch <- prometheus.MustNewConstMetric(dk.AvgWriteRspTime.desc, dk.AvgWriteRspTime.tipo, float64(dgs.AvgWriteRspTime), dgs.Name)
 
-	ch <- prometheus.MustNewConstMetric(dk.timeSinceReset.desc, dk.timeSinceReset.tipo, float64(s.TimeSinceReset))
-	ch <- prometheus.MustNewConstMetric(dk.timeSinceSample.desc, dk.timeSinceSample.tipo, float64(s.TimeSinceSample))
-	ch <- prometheus.MustNewConstMetric(dk.numberOfReads.desc, dk.numberOfReads.tipo, float64(s.NumberOfReads))
-	ch <- prometheus.MustNewConstMetric(dk.numberOfWrites.desc, dk.numberOfWrites.tipo, float64(s.NumberOfWrites))
-	ch <- prometheus.MustNewConstMetric(dk.dataRead.desc, dk.dataRead.tipo, float64(s.DataReadNumeric))
-	ch <- prometheus.MustNewConstMetric(dk.dataWritten.desc, dk.dataWritten.tipo, float64(s.DataWrittenNumeric))
-	ch <- prometheus.MustNewConstMetric(dk.bytesPerSecond.desc, dk.bytesPerSecond.tipo, float64(s.BytesPerSecondNumeric))
-	ch <- prometheus.MustNewConstMetric(dk.iops.desc, dk.iops.tipo, float64(s.Iops))
-	ch <- prometheus.MustNewConstMetric(dk.avgRspTime.desc, dk.avgRspTime.tipo, float64(s.AvgRspTime))
-	ch <- prometheus.MustNewConstMetric(dk.avgReadRspTime.desc, dk.avgReadRspTime.tipo, float64(s.AvgReadRspTime))
-	ch <- prometheus.MustNewConstMetric(dk.AvgWriteRspTime.desc, dk.AvgWriteRspTime.tipo, float64(s.AvgWriteRspTime))
-
-	// Disk Group Statistics Paged
-	for _, dg := range s.DiskGroupStatisticsPaged {
-		ch <- prometheus.MustNewConstMetric(dk.pagesAllocPerMinute.desc, dk.pagesAllocPerMinute.tipo, float64(dg.PagesAllocPerMinute))
-		ch <- prometheus.MustNewConstMetric(dk.pagesDeallocPerMinute.desc, dk.pagesDeallocPerMinute.tipo, float64(dg.PagesDeallocPerMinute))
-		ch <- prometheus.MustNewConstMetric(dk.pagesReclaimed.desc, dk.pagesReclaimed.tipo, float64(dg.PagesReclaimed))
-		ch <- prometheus.MustNewConstMetric(dk.numPagesUnmapPerMinute.desc, dk.numPagesUnmapPerMinute.tipo, float64(dg.NumPagesUnmapPerMinute))
+		// Disk Group Statistics Paged
+		for _, dg := range dgs.DiskGroupStatisticsPaged {
+			ch <- prometheus.MustNewConstMetric(dk.pagesAllocPerMinute.desc, dk.pagesAllocPerMinute.tipo, float64(dg.PagesAllocPerMinute), dgs.Name)
+			ch <- prometheus.MustNewConstMetric(dk.pagesDeallocPerMinute.desc, dk.pagesDeallocPerMinute.tipo, float64(dg.PagesDeallocPerMinute), dgs.Name)
+			ch <- prometheus.MustNewConstMetric(dk.pagesReclaimed.desc, dk.pagesReclaimed.tipo, float64(dg.PagesReclaimed), dgs.Name)
+			ch <- prometheus.MustNewConstMetric(dk.pagesUnmapPerMinute.desc, dk.pagesUnmapPerMinute.tipo, float64(dg.NumPagesUnmapPerMinute), dgs.Name)
+		}
 	}
-
 	return nil
 }

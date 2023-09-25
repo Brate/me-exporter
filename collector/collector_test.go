@@ -47,7 +47,7 @@ func Test_me4Metrics_Login(t *testing.T) {
 	assert.Equal(t, me.cacheSettings.Meta, "/meta/cache-settings")
 
 	assert.Nil(t, err3)
-	assert.Equal(t, me.diskGroupStatistics.Meta, "/meta/disk-group-statistics")
+	assert.Equal(t, me.diskGroupsStatistics.Meta, "/meta/disk-group-statistics")
 
 	assert.Nil(t, err4)
 	assert.Equal(t, me.diskGroups.Meta, "/meta/disk-groups")
