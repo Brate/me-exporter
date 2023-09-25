@@ -66,7 +66,7 @@ func (hcp *httpCacheParameters) FromJson(body []byte) error {
 	return nil
 }
 
-func NewMe4CacheSettings(body []byte) (sti []SystemCacheSettings, err error) {
+func NewMe4CacheSettingsFrom(body []byte) (sti []SystemCacheSettings, err error) {
 	hcp := &httpCacheParameters{}
 	err = json.Unmarshal(body, hcp)
 	if err != nil {
@@ -91,7 +91,7 @@ func NewMe4CacheSettingsFromRequest(client *http.Client, req *http.Request, log 
 		return []SystemCacheSettings{}, err
 	}
 
-	return NewMe4CacheSettings(body)
+	return NewMe4CacheSettingsFrom(body)
 }
 
 // We need to correct the JSON structure for this to work

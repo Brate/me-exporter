@@ -140,7 +140,7 @@ func (sti *httpDiskGroups) FromJson(body []byte) error {
 	return nil
 }
 
-func NewMe4SDiskGroupsFrom(body []byte) (sti []Disk, err error) {
+func NewMe4DiskGroupsFrom(body []byte) (sti []Disk, err error) {
 	hst := &httpDiskGroups{}
 	err = json.Unmarshal(body, hst)
 	if err != nil {
@@ -165,5 +165,5 @@ func NewMe4DiskGroupsFromRequest(client *http.Client, req *http.Request, log log
 		return []Disk{}, err
 	}
 
-	return NewMe4SDiskGroupsFrom(body)
+	return NewMe4DiskGroupsFrom(body)
 }

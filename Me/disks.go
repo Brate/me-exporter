@@ -163,7 +163,7 @@ func (sti *httpDisks) FromJson(body []byte) error {
 	return nil
 }
 
-func NewMe4SDisksFrom(body []byte) (sti []Drives, err error) {
+func NewMe4DisksFrom(body []byte) (sti []Drives, err error) {
 	hst := &httpDisks{}
 	err = json.Unmarshal(body, hst)
 	if err != nil {
@@ -188,5 +188,5 @@ func NewMe4DisksFromRequest(client *http.Client, req *http.Request, log log.Logg
 		return []Drives{}, err
 	}
 
-	return NewMe4SDisksFrom(body)
+	return NewMe4DisksFrom(body)
 }

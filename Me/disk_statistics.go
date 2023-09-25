@@ -99,7 +99,7 @@ func (sti *httpDiskStatistics) FromJson(body []byte) error {
 	return nil
 }
 
-func NewMe4DiskStatisticFrom(body []byte) (sti []DiskStatistic, err error) {
+func NewMe4DiskStatisticsFrom(body []byte) (sti []DiskStatistic, err error) {
 	hst := &httpDiskStatistics{}
 	err = json.Unmarshal(body, hst)
 	if err != nil {
@@ -124,5 +124,5 @@ func NewMe4DiskStatisticFromRequest(client *http.Client, req *http.Request, log 
 		return []DiskStatistic{}, err
 	}
 
-	return NewMe4DiskStatisticFrom(body)
+	return NewMe4DiskStatisticsFrom(body)
 }
