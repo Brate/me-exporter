@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -83,9 +85,11 @@ func NewMe4SensorStatusFrom(body []byte) (sti []SensorStatus, err error) {
 	return
 }
 
-func NewMe4SensorStatusFromRequest(client *http.Client, req *http.Request) ([]SensorStatus, error) {
+func NewMe4SensorStatusFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]SensorStatus, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []SensorStatus{}, err
 	}
 

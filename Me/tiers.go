@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -83,9 +85,11 @@ func NewMe4TiersFrom(body []byte) (sti []Tiers, err error) {
 	return
 }
 
-func NewMe4TiersFromRequest(client *http.Client, req *http.Request) ([]Tiers, error) {
+func NewMe4TiersFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]Tiers, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []Tiers{}, err
 	}
 

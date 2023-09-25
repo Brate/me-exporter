@@ -84,3 +84,5 @@ func NewMe4ServiceTagInfo(url string) []ServiceTagInfo {
 	}
 	return sti.ServiceTagInfo
 }
+
+// TODO: NewMe4ServiceTagInfoFromRequest

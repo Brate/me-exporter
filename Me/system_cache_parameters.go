@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 	"strings"
@@ -76,9 +78,11 @@ func NewMe4CacheSettings(body []byte) (sti []SystemCacheSettings, err error) {
 	return
 }
 
-func NewMe4CacheSettingsFromRequest(client *http.Client, req *http.Request) ([]SystemCacheSettings, error) {
+func NewMe4CacheSettingsFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]SystemCacheSettings, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []SystemCacheSettings{}, err
 	}
 

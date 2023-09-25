@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -65,9 +67,11 @@ func NewMe4FrusFrom(body []byte) (sti []EnclosureFru, err error) {
 	return
 }
 
-func NewMe4FrusFromRequest(client *http.Client, req *http.Request) ([]EnclosureFru, error) {
+func NewMe4FrusFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]EnclosureFru, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []EnclosureFru{}, err
 	}
 

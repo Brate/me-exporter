@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -88,9 +90,11 @@ func NewMe4PortsFrom(body []byte) (sti []Ports, err error) {
 	return
 }
 
-func NewMe4PortsFromRequest(client *http.Client, req *http.Request) ([]Ports, error) {
+func NewMe4PortsFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]Ports, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []Ports{}, err
 	}
 	body, err := io.ReadAll(resp.Body)

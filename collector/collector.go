@@ -257,7 +257,7 @@ func (me *MeMetrics) CacheSettings() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4CacheSettingsFromRequest(client, req)
+	xxx, err := Me.NewMe4CacheSettingsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.cacheSettings = xxx[0]
 	}
@@ -276,7 +276,7 @@ func (me *MeMetrics) DiskGroupStatistics() (err error) {
 		return
 	}
 
-	stats, err := Me.NewMe4DiskGroupStatisticsFromRequest(client, req)
+	stats, err := Me.NewMe4DiskGroupStatisticsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.diskGroupsStatistics = stats
 	}
@@ -295,7 +295,7 @@ func (me *MeMetrics) DiskGroups() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4DiskGroupsFromRequest(client, req)
+	xxx, err := Me.NewMe4DiskGroupsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.diskGroups = xxx[0]
 	}
@@ -314,7 +314,7 @@ func (me *MeMetrics) DiskStatistics() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4DiskStatisticFromRequest(client, req)
+	xxx, err := Me.NewMe4DiskStatisticFromRequest(client, req, me.logger)
 	if err == nil {
 		me.diskStatistic = xxx[0]
 	}
@@ -333,7 +333,7 @@ func (me *MeMetrics) Disks() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4DisksFromRequest(client, req)
+	xxx, err := Me.NewMe4DisksFromRequest(client, req, me.logger)
 	if err == nil {
 		me.disks = xxx[0]
 	}
@@ -352,7 +352,7 @@ func (me *MeMetrics) Enclosures() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4EnclosuresFromRequest(client, req)
+	xxx, err := Me.NewMe4EnclosuresFromRequest(client, req, me.logger)
 	if err == nil {
 		me.enclosures = xxx[0]
 	}
@@ -371,7 +371,7 @@ func (me *MeMetrics) ExpanderStatus() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4ExpanderStatusFromRequest(client, req)
+	xxx, err := Me.NewMe4ExpanderStatusFromRequest(client, req, me.logger)
 	if err == nil {
 		me.expanderStatus = xxx[0]
 	}
@@ -390,7 +390,7 @@ func (me *MeMetrics) Fans() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4FansFromRequest(client, req)
+	xxx, err := Me.NewMe4FansFromRequest(client, req, me.logger)
 	if err == nil {
 		me.fans = xxx[0]
 	}
@@ -409,7 +409,7 @@ func (me *MeMetrics) Frus() (err error) {
 		return
 	}
 
-	xxx, err := Me.NewMe4FrusFromRequest(client, req)
+	xxx, err := Me.NewMe4FrusFromRequest(client, req, me.logger)
 	if err == nil {
 		me.frus = xxx[0]
 	}
@@ -427,7 +427,7 @@ func (me *MeMetrics) Pools() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4PoolsFromRequest(client, req)
+	xxx, err := Me.NewMe4PoolsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.pools = xxx[0]
 	}
@@ -445,7 +445,7 @@ func (me *MeMetrics) PoolsStatistics() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4ShowPoolStatisticsFromRequest(client, req)
+	xxx, err := Me.NewMe4ShowPoolStatisticsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.poolStatistics = xxx[0]
 	}
@@ -463,7 +463,7 @@ func (me *MeMetrics) Ports() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4PortsFromRequest(client, req)
+	xxx, err := Me.NewMe4PortsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.ports = xxx[0]
 	}
@@ -481,7 +481,7 @@ func (me *MeMetrics) SensorStatus() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4SensorStatusFromRequest(client, req)
+	xxx, err := Me.NewMe4SensorStatusFromRequest(client, req, me.logger)
 	if err == nil {
 		me.sensorStatus = xxx[0]
 	}
@@ -500,7 +500,7 @@ func (me *MeMetrics) ControllerStatistics() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4ControllerStatisticsFromRequest(client, req)
+	xxx, err := Me.NewMe4ControllerStatisticsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.controllerStatistics = xxx[0]
 	}
@@ -518,7 +518,7 @@ func (me *MeMetrics) Volumes() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4VolumesFromRequest(client, req)
+	xxx, err := Me.NewMe4VolumesFromRequest(client, req, me.logger)
 	if err == nil {
 		me.volumes = xxx[0]
 	}
@@ -538,7 +538,7 @@ func (me *MeMetrics) VolumeStatistics() (err error) {
 	}
 
 	//xxx, err := Me.NewMe4VolumeStatisticsFromRequest(client, req)
-	xxx, err := Me.NewMe4VolumeStatisticsFromRequest(client, req)
+	xxx, err := Me.NewMe4VolumeStatisticsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.volumeStatistics = xxx[0]
 	}
@@ -558,7 +558,7 @@ func (me *MeMetrics) TierStatistics() (err error) {
 	}
 
 	//xxx, err := Me.NewMe4TierStatisticsFromRequest(client, req)
-	xxx, err := Me.NewMe4TierStatisticsFromRequest(client, req)
+	xxx, err := Me.NewMe4TierStatisticsFromRequest(client, req, me.logger)
 	if err == nil {
 		me.tierStatistics = xxx[0]
 	}
@@ -578,7 +578,7 @@ func (me *MeMetrics) Tiers() (err error) {
 	}
 
 	//xxx, err := Me.NewMe4TiersFromRequest(client, req)
-	xxx, err := Me.NewMe4TiersFromRequest(client, req)
+	xxx, err := Me.NewMe4TiersFromRequest(client, req, me.logger)
 	if err == nil {
 		me.tiers = xxx[0]
 	}
@@ -596,7 +596,7 @@ func (me *MeMetrics) UnwritableCache() (err error) {
 		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
 	}
 
-	xxx, err := Me.NewMe4UnwritableCacheFromRequest(client, req)
+	xxx, err := Me.NewMe4UnwritableCacheFromRequest(client, req, me.logger)
 	if err == nil {
 		me.unwritableCache = xxx[0]
 	}

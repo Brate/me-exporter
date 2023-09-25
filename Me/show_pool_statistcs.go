@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -89,9 +91,11 @@ func NewMe4ShowPoolStatisticsFrom(body []byte) (sti []PoolStatistics, err error)
 	return
 }
 
-func NewMe4ShowPoolStatisticsFromRequest(client *http.Client, req *http.Request) ([]PoolStatistics, error) {
+func NewMe4ShowPoolStatisticsFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]PoolStatistics, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []PoolStatistics{}, err
 	}
 

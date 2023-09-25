@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -103,9 +105,11 @@ func NewMe4VolumeStatisticsFrom(body []byte) (sti []VolumeStatistics, err error)
 	return
 }
 
-func NewMe4VolumeStatisticsFromRequest(client *http.Client, req *http.Request) ([]VolumeStatistics, error) {
+func NewMe4VolumeStatisticsFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]VolumeStatistics, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []VolumeStatistics{}, err
 	}
 

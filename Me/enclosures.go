@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -134,9 +136,11 @@ func NewMe4EnclosuresFrom(body []byte) (sti []Enclosures, err error) {
 	return
 }
 
-func NewMe4EnclosuresFromRequest(client *http.Client, req *http.Request) ([]Enclosures, error) {
+func NewMe4EnclosuresFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]Enclosures, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []Enclosures{}, err
 	}
 

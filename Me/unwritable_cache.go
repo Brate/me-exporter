@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -71,9 +73,11 @@ func NewMe4UnwritableCacheFrom(body []byte) (sti []UnwritableCache, err error) {
 	return
 }
 
-func NewMe4UnwritableCacheFromRequest(client *http.Client, req *http.Request) ([]UnwritableCache, error) {
+func NewMe4UnwritableCacheFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]UnwritableCache, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []UnwritableCache{}, err
 	}
 

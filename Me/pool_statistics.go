@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	//"github.com/go-kit/log"
+	//"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -66,3 +68,5 @@ func NewMe4PoolStatistics(url string) []PoolStatistic {
 	}
 	return ps.PoolStatistics
 }
+
+// TODO: NewMe4PoolStatisticsFrom

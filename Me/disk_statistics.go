@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -109,9 +111,11 @@ func NewMe4DiskStatisticFrom(body []byte) (sti []DiskStatistic, err error) {
 	return
 }
 
-func NewMe4DiskStatisticFromRequest(client *http.Client, req *http.Request) ([]DiskStatistic, error) {
+func NewMe4DiskStatisticFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]DiskStatistic, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []DiskStatistic{}, err
 	}
 

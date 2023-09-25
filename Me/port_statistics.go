@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	//"github.com/go-kit/log"
+	//"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
@@ -40,3 +42,5 @@ func NewMe4PortStatistics(url string) []HostPortStatistics {
 	}
 	return ps.HostPortStatistics
 }
+
+// TODO: Implementar NewMe4PortStatisticsFrom

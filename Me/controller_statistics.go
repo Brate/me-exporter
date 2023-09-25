@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 	"strconv"
@@ -102,9 +104,11 @@ func NewMe4ControllerStatisticsFrom(body []byte) (sti []ControllerStatistics, er
 	sti = diskGp.ControllerStatistics
 	return
 }
-func NewMe4ControllerStatisticsFromRequest(client *http.Client, req *http.Request) ([]ControllerStatistics, error) {
+func NewMe4ControllerStatisticsFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]ControllerStatistics, error) {
 	resp, err := client.Do(req)
 	if err != nil {
+		_ = level.Error(log).Log("msg", "request error", "error", err)
+
 		return []ControllerStatistics{}, err
 	}
 
