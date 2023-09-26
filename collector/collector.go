@@ -60,7 +60,7 @@ type MeMetrics struct {
 	controllerStatistics Me.ControllerStatistics
 	cacheSettings        Me.SystemCacheSettings
 	diskGroupsStatistics []Me.DiskGroupStatistics
-	diskGroups           Me.Disk
+	diskGroups           []Me.Disk
 	diskStatistic        Me.DiskStatistic
 	disks                Me.Drives
 	enclosures           Me.Enclosures
@@ -90,7 +90,7 @@ func NewMeMetrics(instance string, logger log.Logger) (me *MeMetrics) {
 
 	me.baseUrl = aEntry.Url
 	if err := me.Login(*aEntry); err != nil {
-		level.Error(logger).Log("msg", "Login error on ME",
+		_ = level.Error(logger).Log("msg", "Login error on ME",
 			"instance", instance, "error", err)
 		return
 	}
@@ -151,7 +151,7 @@ func (c *MeCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func execute(c Coletor, ch chan<- prometheus.Metric) {
-	c.Update(ch)
+	_ = c.Update(ch)
 }
 
 // _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
@@ -176,20 +176,20 @@ func execute(c Coletor, ch chan<- prometheus.Metric) {
 //	return
 //}
 
-func (me *MeMetrics) Login(instance config.AuthEntry) (err error) {
-	if me.sessionKey != "" {
+func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
+	if meMetrics.sessionKey != "" {
 		return
 	}
 
-	url := fmt.Sprintf("%v/login/%v", me.baseUrl,
+	url := fmt.Sprintf("%v/login/%v", meMetrics.baseUrl,
 		instance.Hash)
-	req, err := me.Me4Request(url)
+	req, err := meMetrics.Me4Request(url)
 	if err != nil {
-		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
+		_ = level.Error(meMetrics.logger).Log("msg", "Erro ao criar request", "error", err)
 		return
 	}
 
-	client := me.NewClient()
+	client := meMetrics.NewClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -211,163 +211,163 @@ func (me *MeMetrics) Login(instance config.AuthEntry) (err error) {
 
 	switch httpLogin.Status[0].ResponseTypeNumeric {
 	case 0:
-		me.sessionKey = httpLogin.Status[0].Response
+		meMetrics.sessionKey = httpLogin.Status[0].Response
 	case 1:
 		// TODO: Testar problemas de login
-		me.sessionKey = ""
+		meMetrics.sessionKey = ""
 		err = fmt.Errorf("erro ao logar em %v", instance.Instance)
 	}
 
 	return
 }
-func (me *MeMetrics) ServiceTag() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) ServiceTag() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/service-tag-info", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/service-tag-info", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	st, err := Me.NewMe4ServiceTagInfoFrom(body)
 	if err == nil {
-		me.serviceTag = st[0]
+		meMetrics.serviceTag = st[0]
 	}
 	return
 }
-func (me *MeMetrics) CacheSettings() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) CacheSettings() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/cache-parameters", me.baseUrl)
+	url := fmt.Sprintf("%v/show/cache-parameters", meMetrics.baseUrl)
 
-	body, err := me.ClientDo(url)
+	body, err := meMetrics.ClientDo(url)
 
 	cs, err := Me.NewMe4CacheSettingsFrom(body)
 	if err == nil {
-		me.cacheSettings = cs[0]
+		meMetrics.cacheSettings = cs[0]
 	}
 	return
 }
-func (me *MeMetrics) DiskGroupStatistics() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) DiskGroupStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/disk-group-statistics", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/disk-group-statistics", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	stats, err := Me.NewMe4DiskGroupStatisticsFrom(body)
 	if err == nil {
-		me.diskGroupsStatistics = stats
+		meMetrics.diskGroupsStatistics = stats
 	}
 	return
 }
-func (me *MeMetrics) DiskGroups() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) DiskGroups() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/disk-groups", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/disk-groups", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	dg, err := Me.NewMe4DiskGroupsFrom(body)
 	if err == nil {
-		me.diskGroups = dg[0]
+		meMetrics.diskGroups = dg
 	}
 	return
 }
-func (me *MeMetrics) DiskStatistics() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) DiskStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/disk-statistics", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/disk-statistics", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	ds, err := Me.NewMe4DiskStatisticsFrom(body)
 	if err == nil {
-		me.diskStatistic = ds[0]
+		meMetrics.diskStatistic = ds[0]
 	}
 	return
 }
-func (me *MeMetrics) Disks() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Disks() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/disks", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/disks", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	disks, err := Me.NewMe4DisksFrom(body)
 	if err == nil {
-		me.disks = disks[0]
+		meMetrics.disks = disks[0]
 	}
 	return
 }
-func (me *MeMetrics) Enclosures() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Enclosures() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/enclosures", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/enclosures", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	enclosures, err := Me.NewMe4EnclosuresFrom(body)
 	if err == nil {
-		me.enclosures = enclosures[0]
+		meMetrics.enclosures = enclosures[0]
 	}
 	return
 }
-func (me *MeMetrics) ExpanderStatus() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) ExpanderStatus() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/expander-status", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/expander-status", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	expanders, err := Me.NewMe4ExpanderStatusFrom(body)
 	if err == nil {
-		me.expanderStatus = expanders[0]
+		meMetrics.expanderStatus = expanders[0]
 	}
 	return
 }
-func (me *MeMetrics) Fans() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Fans() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/fans", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/fans", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	fans, err := Me.NewMe4FansFrom(body)
 	if err == nil {
-		me.fans = fans[0]
+		meMetrics.fans = fans[0]
 	}
 	return
 }
-func (me *MeMetrics) Frus() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Frus() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/frus", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/frus", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	frus, err := Me.NewMe4FrusFrom(body)
 	if err == nil {
-		me.frus = frus[0]
+		meMetrics.frus = frus[0]
 	}
 	return
 }
-func (me *MeMetrics) Pools() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Pools() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/pools", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/pools", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	// Corrige JSON mal formado:
 	// duas ocorrencias de disk-groups no mesmo objeto
@@ -377,148 +377,148 @@ func (me *MeMetrics) Pools() (err error) {
 
 	pools, err := Me.NewMe4PoolsFrom(body)
 	if err == nil {
-		me.pools = pools[0]
+		meMetrics.pools = pools[0]
 	}
 	return
 }
-func (me *MeMetrics) PoolsStatistics() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) PoolsStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/pool-statistics", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/pool-statistics", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	stats, err := Me.NewMe4ShowPoolStatisticsFrom(body)
 	if err == nil {
-		me.poolStatistics = stats[0]
+		meMetrics.poolStatistics = stats[0]
 	}
 	return
 }
-func (me *MeMetrics) Ports() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Ports() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/ports", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/ports", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	ports, err := Me.NewMe4PortsFrom(body)
 	if err == nil {
-		me.ports = ports[0]
+		meMetrics.ports = ports[0]
 	}
 	return
 }
-func (me *MeMetrics) SensorStatus() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) SensorStatus() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/sensor-status", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/sensor-status", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	status, err := Me.NewMe4SensorStatusFrom(body)
 	if err == nil {
-		me.sensorStatus = status[0]
+		meMetrics.sensorStatus = status[0]
 	}
 	return
 }
-func (me *MeMetrics) ControllerStatistics() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) ControllerStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/controller-statistics", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/controller-statistics", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	stats, err := Me.NewMe4ControllerStatisticsFrom(body)
 	if err == nil {
-		me.controllerStatistics = stats[0]
+		meMetrics.controllerStatistics = stats[0]
 	}
 	return
 }
-func (me *MeMetrics) Volumes() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Volumes() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/volumes", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/volumes", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	volumes, err := Me.NewMe4VolumesFrom(body)
 	if err == nil {
-		me.volumes = volumes[0]
+		meMetrics.volumes = volumes[0]
 	}
 	return
 }
-func (me *MeMetrics) VolumeStatistics() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) VolumeStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/volume-statistics", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/volume-statistics", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	stats, err := Me.NewMe4VolumeStatisticsFrom(body)
 	if err == nil {
-		me.volumeStatistics = stats[0]
+		meMetrics.volumeStatistics = stats[0]
 	}
 	return
 }
-func (me *MeMetrics) TierStatistics() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) TierStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/tier-statistics/tier/all", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/tier-statistics/tier/all", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	stats, err := Me.NewMe4TierStatisticsFrom(body)
 	if err == nil {
-		me.tierStatistics = stats[0]
+		meMetrics.tierStatistics = stats[0]
 	}
 	return
 }
-func (me *MeMetrics) Tiers() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) Tiers() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/tiers/tier/all", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/tiers/tier/all", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	tiers, err := Me.NewMe4TiersFrom(body)
 	if err == nil {
-		me.tiers = tiers[0]
+		meMetrics.tiers = tiers[0]
 	}
 	return
 }
-func (me *MeMetrics) UnwritableCache() (err error) {
-	if me.sessionKey == "" {
+func (meMetrics *MeMetrics) UnwritableCache() (err error) {
+	if meMetrics.sessionKey == "" {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/unwritable-cache", me.baseUrl)
-	body, err := me.ClientDo(url)
+	url := fmt.Sprintf("%v/show/unwritable-cache", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
 
 	cache, err := Me.NewMe4UnwritableCacheFrom(body)
 	if err == nil {
-		me.unwritableCache = cache[0]
+		meMetrics.unwritableCache = cache[0]
 	}
 	return
 }
 
 // _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 // Helpers
-func (me *MeMetrics) Me4Request(url string) (req *http.Request, err error) {
+func (meMetrics *MeMetrics) Me4Request(url string) (req *http.Request, err error) {
 	req, err = http.NewRequest("GET", url, nil)
 	req.Header.Add("dataType", "json")
-	if me.sessionKey != "" {
-		req.Header.Add("sessionKey", me.sessionKey)
+	if meMetrics.sessionKey != "" {
+		req.Header.Add("sessionKey", meMetrics.sessionKey)
 	}
 	return
 }
-func (me *MeMetrics) NewClient() (client *http.Client) {
+func (meMetrics *MeMetrics) NewClient() (client *http.Client) {
 	client = &http.Client{
 		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
@@ -528,19 +528,19 @@ func (me *MeMetrics) NewClient() (client *http.Client) {
 	}
 	return
 }
-func (me *MeMetrics) ClientDo(url string) (body []byte, err error) {
-	client := me.NewClient()
-	req, err := me.Me4Request(url)
+func (meMetrics *MeMetrics) ClientDo(url string) (body []byte, err error) {
+	client := meMetrics.NewClient()
+	req, err := meMetrics.Me4Request(url)
 	if err != nil {
-		_ = level.Error(me.logger).Log("msg", "Erro ao criar request", "error", err)
+		_ = level.Error(meMetrics.logger).Log("msg", "Erro ao criar request", "error", err)
 		return
 	}
 
 	msg := fmt.Sprintf("requesting %v", url)
-	_ = level.Info(me.logger).Log("msg", msg)
+	_ = level.Info(meMetrics.logger).Log("msg", msg)
 	resp, err := client.Do(req)
 	if err != nil {
-		_ = level.Error(me.logger).Log("msg", "request error", "error", err)
+		_ = level.Error(meMetrics.logger).Log("msg", "request error", "error", err)
 		return
 	}
 
@@ -548,7 +548,7 @@ func (me *MeMetrics) ClientDo(url string) (body []byte, err error) {
 	defer func() {
 		err = resp.Body.Close()
 		if err != nil {
-			_ = level.Error(me.logger).Log("msg", "body.Close error", "error", err)
+			_ = level.Error(meMetrics.logger).Log("msg", "body.Close error", "error", err)
 		}
 	}()
 
