@@ -6,35 +6,27 @@ import (
 )
 
 type diskStatistics struct {
-	meSession               *MeMetrics
-	powerOnHours            descMétrica
-	bytesPerSecond          descMétrica
-	numberOfReads           descMétrica
-	dataRead                descMétrica
-	dataWritten             descMétrica
-	lifetimeDataRead        descMétrica
-	lifetimeDataWritten     descMétrica
-	queueDepth              descMétrica
-	resetTime               descMétrica
-	startSampleTime         descMétrica
-	stopSampleTime          descMétrica
-	smartCount1             descMétrica
-	smartCount2             descMétrica
-	ioTimeoutCount1         descMétrica
-	ioTimeoutCount2         descMétrica
-	noResponseCount1        descMétrica
-	noResponseCount2        descMétrica
-	spinupRetryCount1       descMétrica
-	spinupRetryCount2       descMétrica
-	numberOfMediaErrors1    descMétrica
-	numberOfMediaErrors2    descMétrica
-	numberOfNonmediaErrors1 descMétrica
-	numberOfNonmediaErrors2 descMétrica
-	numberOfBlockReassigns1 descMétrica
-	numberOfBlockReassigns2 descMétrica
-	numberOfBadBlocks1      descMétrica
-	numberOfBadBlocks2      descMétrica
-	logger                  log.Logger
+	meSession              *MeMetrics
+	powerOnHours           descMétrica
+	bytesPerSecond         descMétrica
+	numberOfReads          descMétrica
+	dataRead               descMétrica
+	dataWritten            descMétrica
+	lifetimeDataRead       descMétrica
+	lifetimeDataWritten    descMétrica
+	queueDepth             descMétrica
+	resetTime              descMétrica
+	startSampleTime        descMétrica
+	stopSampleTime         descMétrica
+	smartCount             descMétrica
+	ioTimeoutCount         descMétrica
+	noResponseCount        descMétrica
+	spinupRetryCount       descMétrica
+	numberOfMediaErrors    descMétrica
+	numberOfNonmediaErrors descMétrica
+	numberOfBlockReassigns descMétrica
+	numberOfBadBlocks      descMétrica
+	logger                 log.Logger
 }
 
 func init() {
@@ -99,85 +91,45 @@ func NewDiskStatistics(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("disk_statistics", "stop_sample_time"),
 				"Stop sample time of the disk", []string{"disk"}),
 		},
-		smartCount1: descMétrica{prometheus.CounterValue,
+		smartCount: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "smart_count_1"),
-				"Smart count 1 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "smart_count"),
+				"Smart count  of the disk", []string{"disk", "counter"}),
 		},
-		smartCount2: descMétrica{prometheus.CounterValue,
+		ioTimeoutCount: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "smart_count_2"),
-				"Smart count 2 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "io_timeout_count"),
+				"Io timeout count  of the disk", []string{"disk", "counter"}),
 		},
-		ioTimeoutCount1: descMétrica{prometheus.CounterValue,
+		noResponseCount: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "io_timeout_count_1"),
-				"Io timeout count 1 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "no_response_count"),
+				"No response count  of the disk", []string{"disk", "counter"}),
 		},
-		ioTimeoutCount2: descMétrica{prometheus.CounterValue,
+		spinupRetryCount: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "io_timeout_count_2"),
-				"Io timeout count 2 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "spinup_retry_count"),
+				"Spinup retry count  of the disk", []string{"disk", "counter"}),
 		},
-		noResponseCount1: descMétrica{prometheus.CounterValue,
+		numberOfMediaErrors: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "no_response_count_1"),
-				"No response count 1 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "number_of_media_errors"),
+				"Number of media errors  of the disk", []string{"disk", "counter"}),
 		},
-		noResponseCount2: descMétrica{prometheus.CounterValue,
+		numberOfNonmediaErrors: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "no_response_count_2"),
-				"No response count 2 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "number_of_nonmedia_errors"),
+				"Number of nonmedia errors  of the disk", []string{"disk", "counter"}),
 		},
-		spinupRetryCount1: descMétrica{prometheus.CounterValue,
+		numberOfBlockReassigns: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "spinup_retry_count_1"),
-				"Spinup retry count 1 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "number_of_block_reassigns"),
+				"Number of block reassigns  of the disk", []string{"disk", "counter"}),
 		},
-		spinupRetryCount2: descMétrica{prometheus.CounterValue,
+		numberOfBadBlocks: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("disk_statistics", "spinup_retry_count_2"),
-				"Spinup retry count 2 of the disk", []string{"disk"}),
-		},
-		numberOfMediaErrors1: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_media_errors_1"),
-				"Number of media errors 1 of the disk", []string{"disk"}),
-		},
-		numberOfMediaErrors2: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_media_errors_2"),
-				"Number of media errors 2 of the disk", []string{"disk"}),
-		},
-		numberOfNonmediaErrors1: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_nonmedia_errors_1"),
-				"Number of nonmedia errors 1 of the disk", []string{"disk"}),
-		},
-		numberOfNonmediaErrors2: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_nonmedia_errors_2"),
-				"Number of nonmedia errors 2 of the disk", []string{"disk"}),
-		},
-		numberOfBlockReassigns1: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_block_reassigns_1"),
-				"Number of block reassigns 1 of the disk", []string{"disk"}),
-		},
-		numberOfBlockReassigns2: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_block_reassigns_2"),
-				"Number of block reassigns 2 of the disk", []string{"disk"}),
-		},
-		numberOfBadBlocks1: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_bad_blocks_1"),
-				"Number of bad blocks 1 of the disk", []string{"disk"}),
-		},
-		numberOfBadBlocks2: descMétrica{prometheus.CounterValue,
-			NewDescritor(
-				NomeMetrica("disk_statistics", "number_of_bad_blocks_2"),
-				"Number of bad blocks 2 of the disk", []string{"disk"}),
+				NomeMetrica("disk_statistics", "number_of_bad_blocks"),
+				"Number of bad blocks  of the disk", []string{"disk", "counter"}),
 		},
 		logger: logger,
 	}, nil
@@ -200,22 +152,22 @@ func (ds diskStatistics) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(ds.resetTime.desc, ds.resetTime.tipo, float64(disk.ResetTimeNumeric), disk.DurableID)
 		ch <- prometheus.MustNewConstMetric(ds.startSampleTime.desc, ds.startSampleTime.tipo, float64(disk.StartSampleTimeNumeric), disk.DurableID)
 		ch <- prometheus.MustNewConstMetric(ds.stopSampleTime.desc, ds.stopSampleTime.tipo, float64(disk.StopSampleTimeNumeric), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.smartCount1.desc, ds.smartCount1.tipo, float64(disk.SmartCount1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.smartCount2.desc, ds.smartCount2.tipo, float64(disk.SmartCount2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.ioTimeoutCount1.desc, ds.ioTimeoutCount1.tipo, float64(disk.IoTimeoutCount1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.ioTimeoutCount2.desc, ds.ioTimeoutCount2.tipo, float64(disk.IoTimeoutCount2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.noResponseCount1.desc, ds.noResponseCount1.tipo, float64(disk.NoResponseCount1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.noResponseCount2.desc, ds.noResponseCount2.tipo, float64(disk.NoResponseCount2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.spinupRetryCount1.desc, ds.spinupRetryCount1.tipo, float64(disk.SpinupRetryCount1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.spinupRetryCount2.desc, ds.spinupRetryCount2.tipo, float64(disk.SpinupRetryCount2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfMediaErrors1.desc, ds.numberOfMediaErrors1.tipo, float64(disk.NumberOfMediaErrors1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfMediaErrors2.desc, ds.numberOfMediaErrors2.tipo, float64(disk.NumberOfMediaErrors2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfNonmediaErrors1.desc, ds.numberOfNonmediaErrors1.tipo, float64(disk.NumberOfNonmediaErrors1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfNonmediaErrors2.desc, ds.numberOfNonmediaErrors2.tipo, float64(disk.NumberOfNonmediaErrors2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfBlockReassigns1.desc, ds.numberOfBlockReassigns1.tipo, float64(disk.NumberOfBlockReassigns1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfBlockReassigns2.desc, ds.numberOfBlockReassigns2.tipo, float64(disk.NumberOfBlockReassigns2), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfBadBlocks1.desc, ds.numberOfBadBlocks1.tipo, float64(disk.NumberOfBadBlocks1), disk.DurableID)
-		ch <- prometheus.MustNewConstMetric(ds.numberOfBadBlocks2.desc, ds.numberOfBadBlocks2.tipo, float64(disk.NumberOfBadBlocks2), disk.DurableID)
+		ch <- prometheus.MustNewConstMetric(ds.smartCount.desc, ds.smartCount.tipo, float64(disk.SmartCount1), disk.DurableID)
+		ch <- prometheus.MustNewConstMetric(ds.smartCount.desc, ds.smartCount.tipo, float64(disk.SmartCount2), disk.DurableID)
+		ch <- prometheus.MustNewConstMetric(ds.ioTimeoutCount.desc, ds.ioTimeoutCount.tipo, float64(disk.IoTimeoutCount1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.ioTimeoutCount.desc, ds.ioTimeoutCount.tipo, float64(disk.IoTimeoutCount2), disk.DurableID, "2")
+		ch <- prometheus.MustNewConstMetric(ds.noResponseCount.desc, ds.noResponseCount.tipo, float64(disk.NoResponseCount1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.noResponseCount.desc, ds.noResponseCount.tipo, float64(disk.NoResponseCount2), disk.DurableID, "2")
+		ch <- prometheus.MustNewConstMetric(ds.spinupRetryCount.desc, ds.spinupRetryCount.tipo, float64(disk.SpinupRetryCount1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.spinupRetryCount.desc, ds.spinupRetryCount.tipo, float64(disk.SpinupRetryCount2), disk.DurableID, "2")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfMediaErrors.desc, ds.numberOfMediaErrors.tipo, float64(disk.NumberOfMediaErrors1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfMediaErrors.desc, ds.numberOfMediaErrors.tipo, float64(disk.NumberOfMediaErrors2), disk.DurableID, "2")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfNonmediaErrors.desc, ds.numberOfNonmediaErrors.tipo, float64(disk.NumberOfNonmediaErrors1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfNonmediaErrors.desc, ds.numberOfNonmediaErrors.tipo, float64(disk.NumberOfNonmediaErrors2), disk.DurableID, "2")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfBlockReassigns.desc, ds.numberOfBlockReassigns.tipo, float64(disk.NumberOfBlockReassigns1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfBlockReassigns.desc, ds.numberOfBlockReassigns.tipo, float64(disk.NumberOfBlockReassigns2), disk.DurableID, "2")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfBadBlocks.desc, ds.numberOfBadBlocks.tipo, float64(disk.NumberOfBadBlocks1), disk.DurableID, "1")
+		ch <- prometheus.MustNewConstMetric(ds.numberOfBadBlocks.desc, ds.numberOfBadBlocks.tipo, float64(disk.NumberOfBadBlocks2), disk.DurableID, "2")
 	}
 
 	return nil
