@@ -61,7 +61,7 @@ type MeMetrics struct {
 	cacheSettings        Me.SystemCacheSettings
 	diskGroupsStatistics []Me.DiskGroupStatistics
 	diskGroups           []Me.Disk
-	diskStatistic        Me.DiskStatistic
+	diskStatistic        []Me.DiskStatistic
 	disks                Me.Drives
 	enclosures           Me.Enclosures
 	expanderStatus       Me.SasStatusControllerA
@@ -287,7 +287,7 @@ func (meMetrics *MeMetrics) DiskStatistics() (err error) {
 
 	ds, err := Me.NewMe4DiskStatisticsFrom(body)
 	if err == nil {
-		meMetrics.diskStatistic = ds[0]
+		meMetrics.diskStatistic = ds
 	}
 	return
 }
@@ -508,7 +508,7 @@ func (meMetrics *MeMetrics) UnwritableCache() (err error) {
 	return
 }
 
-// _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+// Me4Request _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 // Helpers
 func (meMetrics *MeMetrics) Me4Request(url string) (req *http.Request, err error) {
 	req, err = http.NewRequest("GET", url, nil)
