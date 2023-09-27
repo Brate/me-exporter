@@ -30,12 +30,9 @@ type diskGroups struct {
 	numArrayPartitions        descMétrica
 	largestFreePartitionSpace descMétrica
 	numDrivesPerLowLevelArray descMétrica
-	numExpansionPartitions    descMétrica
 	numPartitionSegments      descMétrica
-	newPartitionLba           descMétrica
 	arrayDriveType            descMétrica
 	diskDescription           descMétrica
-	isJobAutoAbortable        descMétrica
 	blocks                    descMétrica
 	diskDsdEnableVdisk        descMétrica
 	diskDsdDelayVdisk         descMétrica
@@ -48,6 +45,8 @@ type diskGroups struct {
 	poolSectorFormat          descMétrica
 	health                    descMétrica
 	logger                    log.Logger
+
+	// TODO: Insert unHealthyComponent struct (to be created)
 }
 
 func init() {
@@ -64,7 +63,7 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		size: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "size"),
+				NomeMetrica("disk_groups", "size_blocks"),
 				"Size of the disk group", []string{"disk_group"}),
 		},
 		freespace: descMétrica{prometheus.GaugeValue,
@@ -74,18 +73,18 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		rawSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "raw_size"),
+				NomeMetrica("disk_groups", "raw_size_blocks"),
 				"Raw size of the disk group", []string{"disk_group"}),
 		},
 		storageType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "storage_type"),
-				"Storage type of the disk group", []string{"disk_group"}),
+				"Storage type of the disk group", []string{"disk_group", "type"}),
 		},
 		storageTier: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "storage_tier"),
-				"Storage tier of the disk group", []string{"disk_group"}),
+				"Storage tier of the disk group", []string{"disk_group", "type"}),
 		},
 		totalPages: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
@@ -115,24 +114,24 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		owner: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "owner"),
-				"Owner of the disk group", []string{"disk_group"}),
+				"Owner of the disk group", []string{"disk_group", "controller"}),
 		},
 		preferredOwner: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "preferred_owner"),
-				"Preferred owner of the disk group", []string{"disk_group"}),
+				"Preferred owner of the disk group", []string{"disk_group", "controller"}),
 		},
 		raidtype: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "raidtype"),
-				"Raid type of the disk group", []string{"disk_group"}),
+				"Raid type of the disk group", []string{"disk_group", "raid"}),
 		},
-		diskcount: descMétrica{prometheus.CounterValue,
+		diskcount: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "diskcount"),
 				"Disk count of the disk group", []string{"disk_group"}),
 		},
-		sparecount: descMétrica{prometheus.CounterValue,
+		sparecount: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "sparecount"),
 				"Spare count of the disk group", []string{"disk_group"}),
@@ -140,22 +139,22 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		status: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "status"),
-				"Status of the disk group", []string{"disk_group"}),
+				"Status of the disk group", []string{"disk_group", "status"}),
 		},
 		minDriveSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "min_drive_size"),
+				NomeMetrica("disk_groups", "min_drive_size_blocks"),
 				"Minimum drive size of the disk group", []string{"disk_group"}),
 		},
 		createDate: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "create_date"),
+				NomeMetrica("disk_groups", "creation_date_epoch"),
 				"Creation date of the disk group", []string{"disk_group"}),
 		},
 		currentJob: descMétrica{prometheus.CounterValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "current_job"),
-				"Current job of the disk group", []string{"disk_group"}),
+				"Current job of the disk group", []string{"disk_group", "job"}),
 		},
 		numArrayPartitions: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
@@ -164,7 +163,7 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		largestFreePartitionSpace: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "largest_free_partition_space"),
+				NomeMetrica("disk_groups", "largest_free_partition_space_blocks"),
 				"Largest free partition space of the disk group", []string{"disk_group"}),
 		},
 		numDrivesPerLowLevelArray: descMétrica{prometheus.GaugeValue,
@@ -172,35 +171,20 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("disk_groups", "num_drives_per_low_level_array"),
 				"Number of drives per low level array of the disk group", []string{"disk_group"}),
 		},
-		numExpansionPartitions: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_groups", "num_expansion_partitions"),
-				"Number of expansion partitions of the disk group", []string{"disk_group"}),
-		},
 		numPartitionSegments: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "num_partition_segments"),
 				"Number of partition segments of the disk group", []string{"disk_group"}),
 		},
-		newPartitionLba: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_groups", "new_partition_lba"),
-				"New partition LBA of the disk group", []string{"disk_group"}),
-		},
 		arrayDriveType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "array_drive_type"),
-				"Array drive type of the disk group", []string{"disk_group"}),
+				"Array drive type of the disk group", []string{"disk_group", "type"}),
 		},
 		diskDescription: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "disk_description"),
-				"Disk description of the disk group", []string{"disk_group"}),
-		},
-		isJobAutoAbortable: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("disk_groups", "is_job_auto_abortable"),
-				"Is job auto abortable of the disk group", []string{"disk_group"}),
+				"Disk description of the disk group", []string{"disk_group", "type"}),
 		},
 		blocks: descMétrica{prometheus.CounterValue,
 			NewDescritor(
@@ -210,7 +194,7 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		diskDsdEnableVdisk: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "disk_dsd_enable_vdisk"),
-				"Disk DSD enable vdisk of the disk group", []string{"disk_group"}),
+				"Disk DSD enable vdisk of the disk group", []string{"disk_group", "status"}),
 		},
 		diskDsdDelayVdisk: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
@@ -229,17 +213,17 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		adaptActualSpareCapacity: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "adapt_actual_spare_capacity"),
+				NomeMetrica("disk_groups", "adapt_actual_spare_capacity_blocks"),
 				"Adapt actual spare capacity of the disk group", []string{"disk_group"}),
 		},
 		adaptCriticalCapacity: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "adapt_critical_capacity"),
+				NomeMetrica("disk_groups", "adapt_critical_capacity_blocks"),
 				"Adapt critical capacity of the disk group", []string{"disk_group"}),
 		},
 		adaptDegradedCapacity: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "adapt_degraded_capacity"),
+				NomeMetrica("disk_groups", "adapt_degraded_capacity_blocks"),
 				"Adapt degraded capacity of the disk group", []string{"disk_group"}),
 		},
 		adaptLinearVolumeBoundary: descMétrica{prometheus.GaugeValue,
@@ -250,12 +234,12 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		poolSectorFormat: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "pool_sector_format"),
-				"Pool sector format of the disk group", []string{"disk_group"}),
+				"Pool sector format of the disk group", []string{"disk_group", "type"}),
 		},
 		health: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("disk_groups", "health"),
-				"Health of the disk group", []string{"disk_group"}),
+				"Health of the disk group", []string{"disk_group", "status"}),
 		},
 		logger: logger,
 	}, nil
@@ -271,33 +255,30 @@ func (dg *diskGroups) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(dg.size.desc, dg.size.tipo, float64(dkg.SizeNumeric), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.freespace.desc, dg.freespace.tipo, float64(dkg.FreespaceNumeric), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.rawSize.desc, dg.rawSize.tipo, float64(dkg.RawSizeNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.storageType.desc, dg.storageType.tipo, float64(dkg.StorageTypeNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.storageTier.desc, dg.storageTier.tipo, float64(dkg.StorageTierNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.storageType.desc, dg.storageType.tipo, float64(dkg.StorageTypeNumeric), dkg.Name, dkg.StorageType)
+		ch <- prometheus.MustNewConstMetric(dg.storageTier.desc, dg.storageTier.tipo, float64(dkg.StorageTierNumeric), dkg.Name, dkg.StorageTier)
 		ch <- prometheus.MustNewConstMetric(dg.totalPages.desc, dg.totalPages.tipo, float64(dkg.TotalPages), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.allocatedPages.desc, dg.allocatedPages.tipo, float64(dkg.AllocatedPages), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.availablePages.desc, dg.availablePages.tipo, float64(dkg.AvailablePages), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.poolPercentage.desc, dg.poolPercentage.tipo, float64(dkg.PoolPercentage), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.performanceRank.desc, dg.performanceRank.tipo, float64(dkg.PerformanceRank), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.owner.desc, dg.owner.tipo, float64(dkg.OwnerNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.preferredOwner.desc, dg.preferredOwner.tipo, float64(dkg.PreferredOwnerNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.raidtype.desc, dg.raidtype.tipo, float64(dkg.RaidtypeNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.owner.desc, dg.owner.tipo, float64(dkg.OwnerNumeric), dkg.Name, dkg.Owner)
+		ch <- prometheus.MustNewConstMetric(dg.preferredOwner.desc, dg.preferredOwner.tipo, float64(dkg.PreferredOwnerNumeric), dkg.Name, dkg.PreferredOwner)
+		ch <- prometheus.MustNewConstMetric(dg.raidtype.desc, dg.raidtype.tipo, float64(dkg.RaidtypeNumeric), dkg.Name, dkg.Raidtype)
 		ch <- prometheus.MustNewConstMetric(dg.diskcount.desc, dg.diskcount.tipo, float64(dkg.Diskcount), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.sparecount.desc, dg.sparecount.tipo, float64(dkg.Sparecount), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.status.desc, dg.status.tipo, float64(dkg.StatusNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.status.desc, dg.status.tipo, float64(dkg.StatusNumeric), dkg.Name, dkg.Status)
 		ch <- prometheus.MustNewConstMetric(dg.minDriveSize.desc, dg.minDriveSize.tipo, float64(dkg.MinDriveSizeNumeric), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.createDate.desc, dg.createDate.tipo, float64(dkg.CreateDateNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.currentJob.desc, dg.currentJob.tipo, float64(dkg.CurrentJobNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.currentJob.desc, dg.currentJob.tipo, float64(dkg.CurrentJobNumeric), dkg.Name, dkg.CurrentJob)
 		ch <- prometheus.MustNewConstMetric(dg.numArrayPartitions.desc, dg.numArrayPartitions.tipo, float64(dkg.NumArrayPartitions), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.largestFreePartitionSpace.desc, dg.largestFreePartitionSpace.tipo, float64(dkg.LargestFreePartitionSpaceNumeric), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.numDrivesPerLowLevelArray.desc, dg.numDrivesPerLowLevelArray.tipo, float64(dkg.NumDrivesPerLowLevelArray), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.numExpansionPartitions.desc, dg.numExpansionPartitions.tipo, float64(dkg.NumExpansionPartitions), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.numPartitionSegments.desc, dg.numPartitionSegments.tipo, float64(dkg.NumPartitionSegments), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.newPartitionLba.desc, dg.newPartitionLba.tipo, float64(dkg.NewPartitionLbaNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.arrayDriveType.desc, dg.arrayDriveType.tipo, float64(dkg.ArrayDriveTypeNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.diskDescription.desc, dg.diskDescription.tipo, float64(dkg.DiskDescriptionNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.isJobAutoAbortable.desc, dg.isJobAutoAbortable.tipo, float64(dkg.IsJobAutoAbortableNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.arrayDriveType.desc, dg.arrayDriveType.tipo, float64(dkg.ArrayDriveTypeNumeric), dkg.Name, dkg.ArrayDriveType)
+		ch <- prometheus.MustNewConstMetric(dg.diskDescription.desc, dg.diskDescription.tipo, float64(dkg.DiskDescriptionNumeric), dkg.Name, dkg.DiskDescription)
 		ch <- prometheus.MustNewConstMetric(dg.blocks.desc, dg.blocks.tipo, float64(dkg.Blocks), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.diskDsdEnableVdisk.desc, dg.diskDsdEnableVdisk.tipo, float64(dkg.DiskDsdEnableVdiskNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.diskDsdEnableVdisk.desc, dg.diskDsdEnableVdisk.tipo, float64(dkg.DiskDsdEnableVdiskNumeric), dkg.Name, dkg.DiskDsdEnableVdisk)
 		ch <- prometheus.MustNewConstMetric(dg.diskDsdDelayVdisk.desc, dg.diskDsdDelayVdisk.tipo, float64(dkg.DiskDsdDelayVdisk), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.scrubDurationGoal.desc, dg.scrubDurationGoal.tipo, float64(dkg.ScrubDurationGoal), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.adaptTargetSpareCapacity.desc, dg.adaptTargetSpareCapacity.tipo, float64(dkg.AdaptTargetSpareCapacityNumeric), dkg.Name)
@@ -305,8 +286,8 @@ func (dg *diskGroups) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(dg.adaptCriticalCapacity.desc, dg.adaptCriticalCapacity.tipo, float64(dkg.AdaptCriticalCapacityNumeric), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.adaptDegradedCapacity.desc, dg.adaptDegradedCapacity.tipo, float64(dkg.AdaptDegradedCapacityNumeric), dkg.Name)
 		ch <- prometheus.MustNewConstMetric(dg.adaptLinearVolumeBoundary.desc, dg.adaptLinearVolumeBoundary.tipo, float64(dkg.AdaptLinearVolumeBoundary), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.poolSectorFormat.desc, dg.poolSectorFormat.tipo, float64(dkg.PoolSectorFormatNumeric), dkg.Name)
-		ch <- prometheus.MustNewConstMetric(dg.health.desc, dg.health.tipo, float64(dkg.HealthNumeric), dkg.Name)
+		ch <- prometheus.MustNewConstMetric(dg.poolSectorFormat.desc, dg.poolSectorFormat.tipo, float64(dkg.PoolSectorFormatNumeric), dkg.Name, dkg.PoolSectorFormat)
+		ch <- prometheus.MustNewConstMetric(dg.health.desc, dg.health.tipo, float64(dkg.HealthNumeric), dkg.Name, dkg.Health)
 	}
 
 	return nil
