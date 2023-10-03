@@ -62,7 +62,7 @@ type MeMetrics struct {
 	diskGroupsStatistics []Me.DiskGroupStatistics
 	diskGroups           []Me.Disk
 	diskStatistic        []Me.DiskStatistic
-	disks                Me.Drives
+	disks                []Me.Drives
 	enclosures           Me.Enclosures
 	expanderStatus       Me.SasStatusControllerA
 	fans                 Me.Fans
@@ -301,7 +301,7 @@ func (meMetrics *MeMetrics) Disks() (err error) {
 
 	disks, err := Me.NewMe4DisksFrom(body)
 	if err == nil {
-		meMetrics.disks = disks[0]
+		meMetrics.disks = disks
 	}
 	return
 }
