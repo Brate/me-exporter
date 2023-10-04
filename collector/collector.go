@@ -119,8 +119,6 @@ func NewMECollector(instancia string, me *MeMetrics, logger log.Logger) (*MeColl
 			"error", err)
 		return nil, err
 	}
-
-	_ = level.Info(logger).Log("instancia", instancia)
 	coletoresInstancia[instancia] = coletores
 	return coletores, nil
 }
