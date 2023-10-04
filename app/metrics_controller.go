@@ -24,17 +24,17 @@ type metricsCollector struct {
 	logger log.Logger
 }
 
-type metricsController struct {
+type MetricsController struct {
 	logger log.Logger
 }
 
-func NewMetricsController(logger log.Logger) *metricsController {
-	return &metricsController{
+func NewMetricsController(logger log.Logger) *MetricsController {
+	return &MetricsController{
 		logger: logger,
 	}
 }
 
-func (m *metricsController) Handler(w http.ResponseWriter, r *http.Request) {
+func (m *MetricsController) Handler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	target := params.Get("target")
 
@@ -47,9 +47,9 @@ func (m *metricsController) Handler(w http.ResponseWriter, r *http.Request) {
 	registry := prometheus.NewRegistry()
 	err := registry.Register(col.collector)
 	if err != nil {
-		level.Error(m.logger).Log("msg", "Couldn't register collector:", "err", err)
+		_ = level.Error(m.logger).Log("msg", "Couldn't register collector:", "err", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("Couldn't register collector: %s", err)))
+		_, _ = w.Write([]byte(fmt.Sprintf("Couldn't register collector: %s", err)))
 		return
 	}
 
@@ -73,7 +73,7 @@ func getMetricsCollector(ipStr string, logger log.Logger) metricsCollector {
 		return mc
 	}
 	metrics := collector.NewMeMetrics(ipStr, logger)
-	col, _ := collector.NewMECollector(metrics, logger)
+	col, _ := collector.NewMECollector(ipStr, metrics, logger)
 	mcMap[ipStr] = metricsCollector{
 		Instance:  ipStr,
 		collector: col,
@@ -86,7 +86,7 @@ func getMetricsCollector(ipStr string, logger log.Logger) metricsCollector {
 func validateIP(ipStr string) error {
 	ip := net.ParseIP(ipStr)
 	if ip == nil {
-		return fmt.Errorf("Not a valid IP")
+		return fmt.Errorf("not a valid IP")
 	}
 	if ip.To4() != nil {
 		return nil
@@ -95,5 +95,5 @@ func validateIP(ipStr string) error {
 		return nil
 	}
 
-	return fmt.Errorf("Not a valid IP")
+	return fmt.Errorf("not a valid IP")
 }
