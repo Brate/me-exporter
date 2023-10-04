@@ -20,10 +20,12 @@ const (
 	namespace = "me"
 )
 
+//type mapaColetores map[string]Coletor
+
 var (
-	factories          = make(map[string]factoryType)
-	coletores          = make(map[string]Coletor)
-	mutexInitColetores = sync.Mutex{}
+	factories           = make(map[string]factoryType)
+	coletoresInstancia  = make(map[string]*MeCollector)
+	mutexInitInstancias = sync.Mutex{}
 )
 
 type factoryType func(me *MeMetrics, logger log.Logger) (Coletor, error)
@@ -103,31 +105,43 @@ type MeCollector struct {
 	logger    log.Logger
 }
 
-func NewMECollector(me *MeMetrics, logger log.Logger) (*MeCollector, error) {
-	mutexInitColetores.Lock()
-	defer mutexInitColetores.Unlock()
+func NewMECollector(instancia string, me *MeMetrics, logger log.Logger) (*MeCollector, error) {
+	mutexInitInstancias.Lock()
+	defer mutexInitInstancias.Unlock()
 
+	if col, ok := coletoresInstancia[instancia]; ok {
+		return col, nil
+	}
+
+	coletores, err := newColetores(me, logger)
+	if err != nil {
+		_ = level.Error(logger).Log("msg", "Erro ao criar coletores",
+			"error", err)
+		return nil, err
+	}
+
+	_ = level.Info(logger).Log("instancia", instancia)
+	coletoresInstancia[instancia] = coletores
+	return coletores, nil
+}
+func newColetores(me *MeMetrics, logger log.Logger) (*MeCollector, error) {
 	lColetores := make(map[string]Coletor)
+
 	for name, factory := range factories {
-		if col, ok := coletores[name]; ok {
-			lColetores[name] = col
-		} else {
-			c, err := factory(me, log.With(logger, "coletor", name))
-			if err != nil {
-				return nil, err
-			}
-			coletores[name] = c
-			lColetores[name] = c
+		c, err := factory(me, log.With(logger, "coletor", name))
+		if err != nil {
+			return nil, err
 		}
+		lColetores[name] = c
 	}
 
 	return &MeCollector{Coletores: lColetores, logger: logger}, nil
 }
 func FlushMECollectors() {
-	mutexInitColetores.Lock()
-	defer mutexInitColetores.Unlock()
+	mutexInitInstancias.Lock()
+	defer mutexInitInstancias.Unlock()
 
-	coletores = make(map[string]Coletor)
+	coletoresInstancia = make(map[string]*MeCollector)
 }
 
 func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
@@ -135,7 +149,7 @@ func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(factories))
 
 	pool := make(chan struct{}, 4) // 4 workers
-	for name, coletor := range coletores {
+	for name, coletor := range c.Coletores {
 		go func(name string, col Coletor) {
 			pool <- struct{}{}
 			execute(col, ch)
@@ -156,30 +170,12 @@ func execute(c Coletor, ch chan<- prometheus.Metric) {
 
 // _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
-//func (me *MeMetrics) FetchMetrics() (instance config.AuthEntry, err error) {
-//	err = me.Login(instance)
-//
-//	var metricas []func() error
-//	metricas = append(metricas, me.ServiceTag, me.CacheSettings, me.DiskGroupStatistics,
-//		me.DiskGroups, me.DiskStatistics, me.Disks, me.Enclosures, me.ExpanderStatus,
-//		me.Fans, me.Frus, me.Pools, me.PoolsStatistics, me.Ports, me.SensorStatus,
-//		me.ControllerStatistics, me.Volumes, me.VolumeStatistics, me.Tiers,
-//		me.TierStatistics, me.UnwritableCache)
-//
-//	for _, metrica := range metricas {
-//		err = metrica()
-//		if err != nil {
-//			return
-//		}
-//	}
-//
-//	return
-//}
-
 func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
 	if meMetrics.sessionKey != "" {
 		return
 	}
+
+	//meMetrics.baseUrl = instance.Url
 
 	url := fmt.Sprintf("%v/login/%v", meMetrics.baseUrl,
 		instance.Hash)
