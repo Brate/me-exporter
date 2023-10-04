@@ -122,22 +122,23 @@ func (c *controllerStatisticsCollector) Update(ch chan<- prometheus.Metric) erro
 		return err
 	}
 
-	stats := c.meSession.controllerStatistics
-	ch <- prometheus.MustNewConstMetric(c.cpuLoad.desc, c.cpuLoad.tipo, float64(stats.CPULoad), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.powerOnTime.desc, c.powerOnTime.tipo, float64(stats.PowerOnTime), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.writeCacheUsed.desc, c.writeCacheUsed.tipo, float64(stats.WriteCacheUsed), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.bytesPerSecond.desc, c.bytesPerSecond.tipo, float64(stats.BytesPerSecondNumeric), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.iops.desc, c.iops.tipo, float64(stats.Iops), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.numberOfReads.desc, c.numberOfReads.tipo, float64(stats.NumberOfReads), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.readCacheHits.desc, c.readCacheHits.tipo, float64(stats.ReadCacheHits), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.readCacheMisses.desc, c.readCacheMisses.tipo, float64(stats.ReadCacheMisses), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.numberOfWrites.desc, c.numberOfWrites.tipo, float64(stats.NumberOfWrites), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.writeCacheHits.desc, c.writeCacheHits.tipo, float64(stats.WriteCacheHits), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.writeCacheMisses.desc, c.writeCacheMisses.tipo, float64(stats.WriteCacheMisses), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.dataRead.desc, c.dataRead.tipo, float64(stats.DataReadNumeric), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.dataWritten.desc, c.dataWritten.tipo, float64(stats.DataWrittenNumeric), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.numForwardedCmds.desc, c.numForwardedCmds.tipo, float64(stats.NumForwardedCmds), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.statsResetTime.desc, c.statsResetTime.tipo, float64(stats.TimeSinceStatsReset), stats.DurableID)
-	ch <- prometheus.MustNewConstMetric(c.totalPowerOnHours.desc, c.totalPowerOnHours.tipo, stats.TotalPowerOnHoursNumeric, stats.DurableID)
+	for _, stats := range c.meSession.controllerStatistics {
+		ch <- prometheus.MustNewConstMetric(c.cpuLoad.desc, c.cpuLoad.tipo, float64(stats.CPULoad), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.powerOnTime.desc, c.powerOnTime.tipo, float64(stats.PowerOnTime), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.writeCacheUsed.desc, c.writeCacheUsed.tipo, float64(stats.WriteCacheUsed), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.bytesPerSecond.desc, c.bytesPerSecond.tipo, float64(stats.BytesPerSecondNumeric), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.iops.desc, c.iops.tipo, float64(stats.Iops), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.numberOfReads.desc, c.numberOfReads.tipo, float64(stats.NumberOfReads), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.readCacheHits.desc, c.readCacheHits.tipo, float64(stats.ReadCacheHits), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.readCacheMisses.desc, c.readCacheMisses.tipo, float64(stats.ReadCacheMisses), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.numberOfWrites.desc, c.numberOfWrites.tipo, float64(stats.NumberOfWrites), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.writeCacheHits.desc, c.writeCacheHits.tipo, float64(stats.WriteCacheHits), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.writeCacheMisses.desc, c.writeCacheMisses.tipo, float64(stats.WriteCacheMisses), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.dataRead.desc, c.dataRead.tipo, float64(stats.DataReadNumeric), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.dataWritten.desc, c.dataWritten.tipo, float64(stats.DataWrittenNumeric), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.numForwardedCmds.desc, c.numForwardedCmds.tipo, float64(stats.NumForwardedCmds), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.statsResetTime.desc, c.statsResetTime.tipo, float64(stats.TimeSinceStatsReset), stats.DurableID)
+		ch <- prometheus.MustNewConstMetric(c.totalPowerOnHours.desc, c.totalPowerOnHours.tipo, stats.TotalPowerOnHoursNumeric, stats.DurableID)
+	}
 	return nil
 }

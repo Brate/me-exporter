@@ -59,7 +59,7 @@ type MeMetrics struct {
 	sessionKey string
 	serviceTag Me.ServiceTagInfo
 
-	controllerStatistics Me.ControllerStatistics
+	controllerStatistics []Me.ControllerStatistics
 	cacheSettings        Me.SystemCacheSettings
 	diskGroupsStatistics []Me.DiskGroupStatistics
 	diskGroups           []Me.Disk
@@ -422,12 +422,12 @@ func (meMetrics *MeMetrics) ControllerStatistics() (err error) {
 		return fmt.Errorf("invalid session")
 	}
 
-	url := fmt.Sprintf("%v/show/controller-statistics", meMetrics.baseUrl)
+	url := fmt.Sprintf("%v/show/controller-statistics/both", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
 
 	stats, err := Me.NewMe4ControllerStatisticsFrom(body)
 	if err == nil {
-		meMetrics.controllerStatistics = stats[0]
+		meMetrics.controllerStatistics = stats
 	}
 	return
 }
