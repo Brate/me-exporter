@@ -20,7 +20,7 @@ func NewServiceTagInfoCollector(me *MeMetrics, logger log.Logger) (Coletor, erro
 		meSession: me,
 		enclosureID: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("service_tag_info_enclosure_id", "service_tag_info"),
+				NomeMetrica("enclosure", "id"),
 				"Enclosure ID", []string{"service_tag"},
 			),
 		},
