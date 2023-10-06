@@ -20,8 +20,6 @@ const (
 	namespace = "me"
 )
 
-//type mapaColetores map[string]Coletor
-
 var (
 	factories           = make(map[string]factoryType)
 	coletoresInstancia  = make(map[string]*MeCollector)
@@ -56,8 +54,8 @@ func NomeMetrica(subsystem string, name string) string {
 
 type MeMetrics struct {
 	baseUrl    string
+	instance   string
 	sessionKey string
-	serviceTag Me.ServiceTagInfo
 
 	controllerStatistics []Me.ControllerStatistics
 	cacheSettings        Me.SystemCacheSettings
@@ -71,6 +69,7 @@ type MeMetrics struct {
 	frus                 Me.EnclosureFru
 	pools                Me.Pools
 	poolStatistics       Me.PoolStatistics
+	serviceTag           []Me.ServiceTagInfo
 	ports                Me.Ports
 	sensorStatus         Me.SensorStatus
 	volumes              Me.Volumes
@@ -78,15 +77,15 @@ type MeMetrics struct {
 	tierStatistics       Me.TierStatistics
 	tiers                Me.Tiers
 	unwritableCache      Me.UnwritableCache
-
-	logger log.Logger
+	logger               log.Logger
 }
 
 func NewMeMetrics(instance string, logger log.Logger) (me *MeMetrics) {
-	me = &MeMetrics{logger: logger}
+	me = &MeMetrics{logger: logger, instance: instance}
 
 	aEntry := config.ExporterConfig.FindAuthByInstance(instance)
 	if aEntry == nil {
+		_ = level.Error(logger).Log("msg", "Erro no aEntry:", aEntry)
 		return
 	}
 
@@ -94,6 +93,7 @@ func NewMeMetrics(instance string, logger log.Logger) (me *MeMetrics) {
 	if err := me.Login(*aEntry); err != nil {
 		_ = level.Error(logger).Log("msg", "Login error on ME",
 			"instance", instance, "error", err)
+
 		return
 	}
 
@@ -101,11 +101,12 @@ func NewMeMetrics(instance string, logger log.Logger) (me *MeMetrics) {
 }
 
 type MeCollector struct {
+	instance  string
 	Coletores map[string]Coletor
 	logger    log.Logger
 }
 
-func NewMECollector(instancia string, me *MeMetrics, logger log.Logger) (*MeCollector, error) {
+func NewMECollectors(instancia string, me *MeMetrics, logger log.Logger) (*MeCollector, error) {
 	mutexInitInstancias.Lock()
 	defer mutexInitInstancias.Unlock()
 
@@ -119,6 +120,7 @@ func NewMECollector(instancia string, me *MeMetrics, logger log.Logger) (*MeColl
 			"error", err)
 		return nil, err
 	}
+	coletores.instance = instancia
 	coletoresInstancia[instancia] = coletores
 	return coletores, nil
 }
@@ -145,25 +147,40 @@ func FlushMECollectors() {
 func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(factories))
+	errorCh := make(chan error, len(factories))
 
 	pool := make(chan struct{}, 4) // 4 workers
 	for name, coletor := range c.Coletores {
 		go func(name string, col Coletor) {
 			pool <- struct{}{}
-			execute(col, ch)
+			if err := execute(col, ch); err != nil {
+				errorCh <- err
+			}
 			<-pool // release a worker
 			wg.Done()
 		}(name, coletor)
 	}
 	wg.Wait()
+	close(errorCh)
+
+	hasErrors := false
+	for err := range errorCh {
+		_ = level.Error(c.logger).Log("msg", "Erro ao executar coletor", "error", err)
+		hasErrors = true
+	}
+
+	if hasErrors {
+		c.Coletores = make(map[string]Coletor)
+	}
 }
 
-func (c *MeCollector) Describe(ch chan<- *prometheus.Desc) {
+func (c *MeCollector) Describe(_ chan<- *prometheus.Desc) {
 
 }
 
-func execute(c Coletor, ch chan<- prometheus.Metric) {
-	_ = c.Update(ch)
+func execute(c Coletor, ch chan<- prometheus.Metric) error {
+	return c.Update(ch)
+
 }
 
 // _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
@@ -172,8 +189,6 @@ func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
 	if meMetrics.sessionKey != "" {
 		return
 	}
-
-	//meMetrics.baseUrl = instance.Url
 
 	url := fmt.Sprintf("%v/login/%v", meMetrics.baseUrl,
 		instance.Hash)
@@ -224,7 +239,7 @@ func (meMetrics *MeMetrics) ServiceTag() (err error) {
 
 	st, err := Me.NewMe4ServiceTagInfoFrom(body)
 	if err == nil {
-		meMetrics.serviceTag = st[0]
+		meMetrics.serviceTag = st
 	}
 	return
 }

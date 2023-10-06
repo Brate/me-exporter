@@ -35,14 +35,14 @@ func main() {
 
 	logger := promlog.New(&promlog.Config{})
 	controller := app.NewMetricsController(logger)
-	//col, _ := collector.NewMECollector(logger)
+	//col, _ := collector.NewMECollectors(logger)
 	//prometheus.MustRegister(col)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/metrics", controller.Handler).Methods(http.MethodGet)
 	err := http.ListenAndServe(":10005", router)
 	if err != nil {
-		level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
+		_ = level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 		return
 	}
 }

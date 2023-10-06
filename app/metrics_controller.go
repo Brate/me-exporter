@@ -69,11 +69,12 @@ func (m *MetricsController) Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMetricsCollector(ipStr string, logger log.Logger) metricsCollector {
-	if mc, ok := mcMap[ipStr]; ok {
+	mc, ok := mcMap[ipStr]
+	if ok && len(mc.collector.Coletores) > 0 {
 		return mc
 	}
 	metrics := collector.NewMeMetrics(ipStr, logger)
-	col, _ := collector.NewMECollector(ipStr, metrics, logger)
+	col, _ := collector.NewMECollectors(ipStr, metrics, logger)
 	mcMap[ipStr] = metricsCollector{
 		Instance:  ipStr,
 		collector: col,
