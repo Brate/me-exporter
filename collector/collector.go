@@ -110,7 +110,8 @@ func NewMECollectors(instancia string, me *MeMetrics, logger log.Logger) (*MeCol
 	mutexInitInstancias.Lock()
 	defer mutexInitInstancias.Unlock()
 
-	if col, ok := coletoresInstancia[instancia]; ok {
+	col, ok := coletoresInstancia[instancia]
+	if ok && len(col.Coletores) > 0 {
 		return col, nil
 	}
 
@@ -146,10 +147,12 @@ func FlushMECollectors() {
 
 func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
-	wg.Add(len(factories))
-	errorCh := make(chan error, len(factories))
+	wg.Add(len(c.Coletores))
+	errorCh := make(chan error, len(c.Coletores))
 
 	pool := make(chan struct{}, 4) // 4 workers
+	defer close(pool)
+
 	for name, coletor := range c.Coletores {
 		go func(name string, col Coletor) {
 			pool <- struct{}{}
