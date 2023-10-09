@@ -65,22 +65,24 @@ func (c *cacheSettingsController) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	s := c.meSession.cacheSettings
+	//s := c.meSession.cacheSettings
 
-	ch <- prometheus.MustNewConstMetric(c.operationMode.desc, c.operationMode.tipo,
-		float64(s.OperationModeNumeric), s.OperationMode)
-	ch <- prometheus.MustNewConstMetric(c.cacheBlockSize.desc, c.cacheBlockSize.tipo,
-		float64(s.CacheBlockSize))
+	for _, s := range c.meSession.cacheSettings {
+		ch <- prometheus.MustNewConstMetric(c.operationMode.desc, c.operationMode.tipo,
+			float64(s.OperationModeNumeric), s.OperationMode)
+		ch <- prometheus.MustNewConstMetric(c.cacheBlockSize.desc, c.cacheBlockSize.tipo,
+			float64(s.CacheBlockSize))
 
-	for _, controller := range s.ControllerCacheParameters {
-		ch <- prometheus.MustNewConstMetric(c.CompactFlash.desc, c.CompactFlash.tipo,
-			float64(controller.CompactFlashStatusNumeric), controller.ControllerID, controller.CompactFlashStatus)
-		ch <- prometheus.MustNewConstMetric(c.CompactFlashHealth.desc, c.CompactFlashHealth.tipo,
-			float64(controller.CompactFlashHealthNumeric), controller.ControllerID, controller.CompactFlashHealth)
-		ch <- prometheus.MustNewConstMetric(c.CacheFlush.desc, c.CacheFlush.tipo,
-			float64(controller.CacheFlushNumeric), controller.ControllerID)
-		ch <- prometheus.MustNewConstMetric(c.WriteBack.desc, c.WriteBack.tipo,
-			float64(controller.WriteBackStatusNumeric), controller.ControllerID, controller.WriteBackStatus)
+		for _, controller := range s.ControllerCacheParameters {
+			ch <- prometheus.MustNewConstMetric(c.CompactFlash.desc, c.CompactFlash.tipo,
+				float64(controller.CompactFlashStatusNumeric), controller.ControllerID, controller.CompactFlashStatus)
+			ch <- prometheus.MustNewConstMetric(c.CompactFlashHealth.desc, c.CompactFlashHealth.tipo,
+				float64(controller.CompactFlashHealthNumeric), controller.ControllerID, controller.CompactFlashHealth)
+			ch <- prometheus.MustNewConstMetric(c.CacheFlush.desc, c.CacheFlush.tipo,
+				float64(controller.CacheFlushNumeric), controller.ControllerID)
+			ch <- prometheus.MustNewConstMetric(c.WriteBack.desc, c.WriteBack.tipo,
+				float64(controller.WriteBackStatusNumeric), controller.ControllerID, controller.WriteBackStatus)
+		}
 	}
 
 	return nil
