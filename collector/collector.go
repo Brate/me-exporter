@@ -58,25 +58,25 @@ type MeMetrics struct {
 	sessionKey string
 
 	controllerStatistics []Me.ControllerStatistics
-	cacheSettings        Me.SystemCacheSettings
+	cacheSettings        []Me.SystemCacheSettings
 	diskGroupsStatistics []Me.DiskGroupStatistics
 	diskGroups           []Me.Disk
 	diskStatistic        []Me.DiskStatistic
 	disks                []Me.Drives
-	enclosures           Me.Enclosures
-	expanderStatus       Me.SasStatusControllerA
-	fans                 Me.Fans
-	frus                 Me.EnclosureFru
-	pools                Me.Pools
-	poolStatistics       Me.PoolStatistics
+	enclosures           []Me.Enclosures
+	expanderStatus       []Me.SasStatusControllerA
+	fans                 []Me.Fans
+	frus                 []Me.EnclosureFru
+	pools                []Me.Pools
+	poolStatistics       []Me.PoolStatistics
 	serviceTag           []Me.ServiceTagInfo
-	ports                Me.Ports
-	sensorStatus         Me.SensorStatus
-	volumes              Me.Volumes
-	volumeStatistics     Me.VolumeStatistics
-	tierStatistics       Me.TierStatistics
-	tiers                Me.Tiers
-	unwritableCache      Me.UnwritableCache
+	ports                []Me.Ports
+	sensorStatus         []Me.SensorStatus
+	volumes              []Me.Volumes
+	volumeStatistics     []Me.VolumeStatistics
+	tierStatistics       []Me.TierStatistics
+	tiers                []Me.Tiers
+	unwritableCache      []Me.UnwritableCache
 	logger               log.Logger
 }
 
@@ -257,7 +257,7 @@ func (meMetrics *MeMetrics) CacheSettings() (err error) {
 
 	cs, err := Me.NewMe4CacheSettingsFrom(body)
 	if err == nil {
-		meMetrics.cacheSettings = cs[0]
+		meMetrics.cacheSettings = cs
 	}
 	return
 }
@@ -327,7 +327,7 @@ func (meMetrics *MeMetrics) Enclosures() (err error) {
 
 	enclosures, err := Me.NewMe4EnclosuresFrom(body)
 	if err == nil {
-		meMetrics.enclosures = enclosures[0]
+		meMetrics.enclosures = enclosures
 	}
 	return
 }
@@ -341,7 +341,7 @@ func (meMetrics *MeMetrics) ExpanderStatus() (err error) {
 
 	expanders, err := Me.NewMe4ExpanderStatusFrom(body)
 	if err == nil {
-		meMetrics.expanderStatus = expanders[0]
+		meMetrics.expanderStatus = expanders
 	}
 	return
 }
@@ -355,7 +355,7 @@ func (meMetrics *MeMetrics) Fans() (err error) {
 
 	fans, err := Me.NewMe4FansFrom(body)
 	if err == nil {
-		meMetrics.fans = fans[0]
+		meMetrics.fans = fans
 	}
 	return
 }
@@ -369,7 +369,7 @@ func (meMetrics *MeMetrics) Frus() (err error) {
 
 	frus, err := Me.NewMe4FrusFrom(body)
 	if err == nil {
-		meMetrics.frus = frus[0]
+		meMetrics.frus = frus
 	}
 	return
 }
@@ -389,7 +389,7 @@ func (meMetrics *MeMetrics) Pools() (err error) {
 
 	pools, err := Me.NewMe4PoolsFrom(body)
 	if err == nil {
-		meMetrics.pools = pools[0]
+		meMetrics.pools = pools
 	}
 	return
 }
@@ -403,7 +403,7 @@ func (meMetrics *MeMetrics) PoolsStatistics() (err error) {
 
 	stats, err := Me.NewMe4ShowPoolStatisticsFrom(body)
 	if err == nil {
-		meMetrics.poolStatistics = stats[0]
+		meMetrics.poolStatistics = stats
 	}
 	return
 }
@@ -417,7 +417,7 @@ func (meMetrics *MeMetrics) Ports() (err error) {
 
 	ports, err := Me.NewMe4PortsFrom(body)
 	if err == nil {
-		meMetrics.ports = ports[0]
+		meMetrics.ports = ports
 	}
 	return
 }
@@ -431,7 +431,7 @@ func (meMetrics *MeMetrics) SensorStatus() (err error) {
 
 	status, err := Me.NewMe4SensorStatusFrom(body)
 	if err == nil {
-		meMetrics.sensorStatus = status[0]
+		meMetrics.sensorStatus = status
 	}
 	return
 }
@@ -459,7 +459,7 @@ func (meMetrics *MeMetrics) Volumes() (err error) {
 
 	volumes, err := Me.NewMe4VolumesFrom(body)
 	if err == nil {
-		meMetrics.volumes = volumes[0]
+		meMetrics.volumes = volumes
 	}
 	return
 }
@@ -473,7 +473,7 @@ func (meMetrics *MeMetrics) VolumeStatistics() (err error) {
 
 	stats, err := Me.NewMe4VolumeStatisticsFrom(body)
 	if err == nil {
-		meMetrics.volumeStatistics = stats[0]
+		meMetrics.volumeStatistics = stats
 	}
 	return
 }
@@ -487,7 +487,7 @@ func (meMetrics *MeMetrics) TierStatistics() (err error) {
 
 	stats, err := Me.NewMe4TierStatisticsFrom(body)
 	if err == nil {
-		meMetrics.tierStatistics = stats[0]
+		meMetrics.tierStatistics = stats
 	}
 	return
 }
@@ -501,7 +501,7 @@ func (meMetrics *MeMetrics) Tiers() (err error) {
 
 	tiers, err := Me.NewMe4TiersFrom(body)
 	if err == nil {
-		meMetrics.tiers = tiers[0]
+		meMetrics.tiers = tiers
 	}
 	return
 }
@@ -515,7 +515,7 @@ func (meMetrics *MeMetrics) UnwritableCache() (err error) {
 
 	cache, err := Me.NewMe4UnwritableCacheFrom(body)
 	if err == nil {
-		meMetrics.unwritableCache = cache[0]
+		meMetrics.unwritableCache = cache
 	}
 	return
 }
