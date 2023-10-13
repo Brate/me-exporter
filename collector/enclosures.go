@@ -431,79 +431,7 @@ func (e enclosures) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(e.slots.desc, e.slots.tipo, float64(enc.Slots), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.enclosurePower.desc, e.enclosurePower.tipo, h.StringToFloat(enc.EnclosurePower), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.health.desc, e.health.tipo, float64(enc.HealthNumeric), enc.DurableID, enc.Health, enc.HealthReason, enc.HealthRecommendation)
-
-		//Controllers
-		for _, controller := range enc.Controllers {
-			ch <- prometheus.MustNewConstMetric(e.controllerID.desc, e.controllerID.tipo, float64(controller.ControllerIDNumeric), enc.DurableID, controller.ControllerID)
-			ch <- prometheus.MustNewConstMetric(e.controllerUp.desc, e.controllerUp.tipo, 1, enc.DurableID, controller.ControllerID, controller.Vendor, controller.Model, controller.Revision)
-			ch <- prometheus.MustNewConstMetric(e.disks.desc, e.disks.tipo, float64(controller.Disks), enc.DurableID)
-			ch <- prometheus.MustNewConstMetric(e.numberOfStoragePools.desc, e.numberOfStoragePools.tipo, float64(controller.NumberOfStoragePools), enc.DurableID)
-			ch <- prometheus.MustNewConstMetric(e.virtualDisks.desc, e.virtualDisks.tipo, float64(controller.VirtualDisks), enc.DurableID)
-			ch <- prometheus.MustNewConstMetric(e.cacheMemorySize.desc, e.cacheMemorySize.tipo, float64(controller.CacheMemorySize), enc.DurableID)
-			ch <- prometheus.MustNewConstMetric(e.systemMemorySize.desc, e.systemMemorySize.tipo, float64(controller.SystemMemorySize), enc.DurableID)
-			ch <- prometheus.MustNewConstMetric(e.controllerStatus.desc, e.controllerStatus.tipo, float64(controller.StatusNumeric), enc.DurableID, controller.ControllerID, controller.Status)
-			ch <- prometheus.MustNewConstMetric(e.failedOver.desc, e.failedOver.tipo, float64(controller.FailedOverNumeric), enc.DurableID, controller.ControllerID, controller.FailedOver)
-			ch <- prometheus.MustNewConstMetric(e.failOverReason.desc, e.failOverReason.tipo, float64(controller.FailOverReasonNumeric), enc.DurableID, controller.ControllerID, controller.FailOverReason)
-			ch <- prometheus.MustNewConstMetric(e.controllersStatus.desc, e.controllersStatus.tipo, float64(controller.StatusNumeric), enc.DurableID, controller.ControllerID, controller.Status)
-			ch <- prometheus.MustNewConstMetric(e.cacheLock.desc, e.cacheLock.tipo, float64(controller.CacheLockNumeric), enc.DurableID, controller.ControllerID, controller.CacheLock)
-			ch <- prometheus.MustNewConstMetric(e.writePolicy.desc, e.writePolicy.tipo, float64(controller.WritePolicyNumeric), enc.DurableID, controller.ControllerID, controller.WritePolicy)
-			ch <- prometheus.MustNewConstMetric(e.position.desc, e.position.tipo, float64(controller.PositionNumeric), enc.DurableID, controller.ControllerID, controller.Position)
-			ch <- prometheus.MustNewConstMetric(e.redundancyMode.desc, e.redundancyMode.tipo, float64(controller.RedundancyModeNumeric), enc.DurableID, controller.ControllerID, controller.RedundancyMode)
-			ch <- prometheus.MustNewConstMetric(e.redundancyStatus.desc, e.redundancyStatus.tipo, float64(controller.RedundancyStatusNumeric), enc.DurableID, controller.ControllerID, controller.RedundancyStatus)
-			ch <- prometheus.MustNewConstMetric(e.controllerHealth.desc, e.controllerHealth.tipo, float64(controller.HealthNumeric), enc.DurableID, controller.ControllerID, controller.HealthReason, controller.HealthRecommendation)
-
-			//Controllers NetworkParameters
-			for _, networkParameters := range controller.NetworkParameters {
-				ch <- prometheus.MustNewConstMetric(e.activeVersion.desc, e.activeVersion.tipo, float64(networkParameters.ActiveVersion), enc.DurableID, controller.ControllerID)
-				ch <- prometheus.MustNewConstMetric(e.linkSpeed.desc, e.linkSpeed.tipo, float64(networkParameters.LinkSpeedNumeric), enc.DurableID, controller.ControllerID, networkParameters.LinkSpeed)
-				ch <- prometheus.MustNewConstMetric(e.duplexMode.desc, e.duplexMode.tipo, float64(networkParameters.DuplexModeNumeric), enc.DurableID, controller.ControllerID, networkParameters.DuplexMode)
-				ch <- prometheus.MustNewConstMetric(e.networkHealth.desc, e.networkHealth.tipo, float64(networkParameters.HealthNumeric), enc.DurableID, controller.ControllerID, networkParameters.Health, networkParameters.HealthRecommendation)
-				ch <- prometheus.MustNewConstMetric(e.networkPingBroadcast.desc, e.networkPingBroadcast.tipo, float64(networkParameters.PingBroadcastNumeric), enc.DurableID, controller.ControllerID, networkParameters.PingBroadcast)
-			}
-
-			//Controllers Port
-			for _, port := range controller.Port {
-				ch <- prometheus.MustNewConstMetric(e.controller.desc, e.controller.tipo, float64(port.ControllerNumeric), enc.DurableID, controller.ControllerID, port.Controller)
-				ch <- prometheus.MustNewConstMetric(e.portType.desc, e.portType.tipo, float64(port.PortTypeNumeric), enc.DurableID, controller.ControllerID, port.PortType, port.Port)
-				ch <- prometheus.MustNewConstMetric(e.portStatus.desc, e.portStatus.tipo, float64(port.StatusNumeric), enc.DurableID, controller.ControllerID, port.Status, port.Port)
-				ch <- prometheus.MustNewConstMetric(e.actualSpeed.desc, e.actualSpeed.tipo, float64(port.ActualSpeedNumeric), enc.DurableID, controller.ControllerID, port.ActualSpeed, port.Port)
-				ch <- prometheus.MustNewConstMetric(e.configuredSpeed.desc, e.configuredSpeed.tipo, float64(port.ConfiguredSpeedNumeric), enc.DurableID, controller.ControllerID, port.ConfiguredSpeed, port.Port)
-				ch <- prometheus.MustNewConstMetric(e.portHealth.desc, e.portHealth.tipo, float64(port.HealthNumeric), enc.DurableID, controller.ControllerID, port.Health, port.HealthReason, port.HealthRecommendation, port.Port)
-
-				//Controllers Port IscsiPort
-				for _, iscsiPort := range port.IscsiPort {
-					ch <- prometheus.MustNewConstMetric(e.sfpStatus.desc, e.sfpStatus.tipo, float64(iscsiPort.SfpStatusNumeric), enc.DurableID, controller.ControllerID, iscsiPort.SfpStatus, port.Port)
-					ch <- prometheus.MustNewConstMetric(e.sfpPresent.desc, e.sfpPresent.tipo, float64(iscsiPort.SfpPresentNumeric), enc.DurableID, controller.ControllerID, iscsiPort.SfpPresent, port.Port)
-				}
-
-			}
-
-			//Controllers ExpanderPorts
-			for _, expanderPorts := range controller.ExpanderPorts {
-				ch <- prometheus.MustNewConstMetric(e.enclosureID.desc, e.enclosureID.tipo, float64(expanderPorts.EnclosureID), enc.DurableID, expanderPorts.Name, controller.ControllerID)
-				ch <- prometheus.MustNewConstMetric(e.expanderPortsController.desc, e.expanderPortsController.tipo, float64(expanderPorts.ControllerNumeric), enc.DurableID, expanderPorts.Name, controller.ControllerID, expanderPorts.Controller)
-				ch <- prometheus.MustNewConstMetric(e.sasPortType.desc, e.sasPortType.tipo, float64(expanderPorts.SasPortTypeNumeric), enc.DurableID, controller.ControllerID, expanderPorts.SasPortType, expanderPorts.Name)
-				ch <- prometheus.MustNewConstMetric(e.sasPortIndex.desc, e.sasPortIndex.tipo, float64(expanderPorts.SasPortIndex), enc.DurableID, controller.ControllerID, expanderPorts.Name)
-				ch <- prometheus.MustNewConstMetric(e.expanderPortsStatus.desc, e.expanderPortsStatus.tipo, float64(expanderPorts.StatusNumeric), enc.DurableID, controller.ControllerID, expanderPorts.Status, expanderPorts.Name)
-				ch <- prometheus.MustNewConstMetric(e.expanderPortsHealth.desc, e.expanderPortsHealth.tipo, float64(expanderPorts.HealthNumeric), enc.DurableID, controller.ControllerID, expanderPorts.Health, expanderPorts.HealthReason, expanderPorts.HealthRecommendation, expanderPorts.Name)
-			}
-
-			//Controllers CompactFlash
-			for _, compactFlash := range controller.CompactFlash {
-				ch <- prometheus.MustNewConstMetric(e.compactFlashStatus.desc, e.compactFlashStatus.tipo, float64(compactFlash.StatusNumeric), enc.DurableID, controller.ControllerID, compactFlash.Status, compactFlash.Name)
-				ch <- prometheus.MustNewConstMetric(e.cacheFlush.desc, e.cacheFlush.tipo, float64(compactFlash.CacheFlushNumeric), enc.DurableID, controller.ControllerID, compactFlash.CacheFlush, compactFlash.Name)
-				ch <- prometheus.MustNewConstMetric(e.compactFlashHealth.desc, e.compactFlashHealth.tipo, float64(compactFlash.HealthNumeric), enc.DurableID, controller.ControllerID, compactFlash.Name, compactFlash.Health, compactFlash.HealthReason, compactFlash.HealthRecommendation)
-			}
-
-			//Controllers Expanders
-			for _, expanders := range controller.Expanders {
-				ch <- prometheus.MustNewConstMetric(e.pathID.desc, e.pathID.tipo, float64(expanders.PathIDNumeric), enc.DurableID, controller.ControllerID, expanders.PathID, expanders.Name)
-				ch <- prometheus.MustNewConstMetric(e.expandersStatus.desc, e.expandersStatus.tipo, float64(expanders.StatusNumeric), enc.DurableID, controller.ControllerID, expanders.Status, expanders.Name)
-				ch <- prometheus.MustNewConstMetric(e.expandersHealth.desc, e.expandersHealth.tipo, float64(expanders.HealthNumeric), enc.DurableID, controller.ControllerID, expanders.Health, expanders.HealthReason, expanders.HealthRecommendation, expanders.Name)
-			}
-
-		}
-
+		e.collectControllers(ch, enc)
 		e.collectPowerSupplies(ch, enc)
 	}
 
@@ -514,6 +442,37 @@ func (m *descMétrica) constMetric(value float64, labels ...string) prometheus.M
 	return prometheus.MustNewConstMetric(m.desc, m.tipo, value, labels...)
 }
 
+func (e enclosures) collectControllers(ch chan<- prometheus.Metric, enc Me.Enclosure) {
+	for _, controller := range enc.Controllers {
+		ch <- e.controllerID.constMetric(float64(controller.ControllerIDNumeric), enc.DurableID, controller.ControllerID)
+		ch <- e.controllerUp.constMetric(1, enc.DurableID, controller.ControllerID, controller.Vendor, controller.Model, controller.Revision)
+		ch <- e.disks.constMetric(float64(controller.Disks), enc.DurableID)
+		ch <- e.numberOfStoragePools.constMetric(float64(controller.NumberOfStoragePools), enc.DurableID)
+		ch <- e.virtualDisks.constMetric(float64(controller.VirtualDisks), enc.DurableID)
+		ch <- e.cacheMemorySize.constMetric(float64(controller.CacheMemorySize), enc.DurableID)
+		ch <- e.systemMemorySize.constMetric(float64(controller.SystemMemorySize), enc.DurableID)
+		ch <- e.controllerStatus.constMetric(float64(controller.StatusNumeric), enc.DurableID, controller.ControllerID, controller.Status)
+		ch <- e.failedOver.constMetric(float64(controller.FailedOverNumeric), enc.DurableID, controller.ControllerID, controller.FailedOver)
+		ch <- e.failOverReason.constMetric(float64(controller.FailOverReasonNumeric), enc.DurableID, controller.ControllerID, controller.FailOverReason)
+		ch <- e.controllersStatus.constMetric(float64(controller.StatusNumeric), enc.DurableID, controller.ControllerID, controller.Status)
+		ch <- e.cacheLock.constMetric(float64(controller.CacheLockNumeric), enc.DurableID, controller.ControllerID, controller.CacheLock)
+		ch <- e.writePolicy.constMetric(float64(controller.WritePolicyNumeric), enc.DurableID, controller.ControllerID, controller.WritePolicy)
+		ch <- e.position.constMetric(float64(controller.PositionNumeric), enc.DurableID, controller.ControllerID, controller.Position)
+		ch <- e.redundancyMode.constMetric(float64(controller.RedundancyModeNumeric), enc.DurableID, controller.ControllerID, controller.RedundancyMode)
+		ch <- e.redundancyStatus.constMetric(float64(controller.RedundancyStatusNumeric), enc.DurableID, controller.ControllerID, controller.RedundancyStatus)
+		ch <- e.controllerHealth.constMetric(float64(controller.HealthNumeric), enc.DurableID, controller.ControllerID, controller.HealthReason, controller.HealthRecommendation)
+
+		// Helpers
+		e.collectControllerNetworkParameters(ch, enc, controller)
+		e.collectControllerPorts(ch, enc, controller)
+		e.collectControllerExpanderPorts(ch, enc, controller)
+		e.collectControllerCompactFlash(ch, enc, controller)
+		e.collectControllerExpanders(ch, enc, controller)
+
+	}
+}
+
+// Helpers
 func (e enclosures) collectPowerSupplies(ch chan<- prometheus.Metric, enc Me.Enclosure) {
 	for _, powerSupplies := range enc.PowerSupplies {
 		ch <- e.powerSuppliesEnclosureID.constMetric(float64(powerSupplies.EnclosureID), enc.DurableID, powerSupplies.Name)
@@ -530,5 +489,54 @@ func (e enclosures) collectPowerSupplies(ch chan<- prometheus.Metric, enc Me.Enc
 			ch <- e.powerSuppliesFansPosition.constMetric(float64(powerSuppliesFans.PositionNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Position)
 			ch <- e.powerSuppliesFansHealth.constMetric(float64(powerSuppliesFans.HealthNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Health, powerSuppliesFans.HealthReason, powerSuppliesFans.HealthRecommendation)
 		}
+	}
+}
+func (e enclosures) collectControllerNetworkParameters(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
+	for _, networkParameters := range controller.NetworkParameters {
+		ch <- e.activeVersion.constMetric(float64(networkParameters.ActiveVersion), enc.DurableID, controller.ControllerID)
+		ch <- e.linkSpeed.constMetric(float64(networkParameters.LinkSpeedNumeric), enc.DurableID, controller.ControllerID, networkParameters.LinkSpeed)
+		ch <- e.duplexMode.constMetric(float64(networkParameters.DuplexModeNumeric), enc.DurableID, controller.ControllerID, networkParameters.DuplexMode)
+		ch <- e.networkHealth.constMetric(float64(networkParameters.HealthNumeric), enc.DurableID, controller.ControllerID, networkParameters.Health, networkParameters.HealthRecommendation)
+		ch <- e.networkPingBroadcast.constMetric(float64(networkParameters.PingBroadcastNumeric), enc.DurableID, controller.ControllerID, networkParameters.PingBroadcast)
+	}
+}
+func (e enclosures) collectControllerPorts(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
+	for _, port := range controller.Port {
+		ch <- e.controller.constMetric(float64(port.ControllerNumeric), enc.DurableID, controller.ControllerID, port.Controller)
+		ch <- e.portType.constMetric(float64(port.PortTypeNumeric), enc.DurableID, controller.ControllerID, port.PortType, port.Port)
+		ch <- e.portStatus.constMetric(float64(port.StatusNumeric), enc.DurableID, controller.ControllerID, port.Status, port.Port)
+		ch <- e.actualSpeed.constMetric(float64(port.ActualSpeedNumeric), enc.DurableID, controller.ControllerID, port.ActualSpeed, port.Port)
+		ch <- e.configuredSpeed.constMetric(float64(port.ConfiguredSpeedNumeric), enc.DurableID, controller.ControllerID, port.ConfiguredSpeed, port.Port)
+		ch <- e.portHealth.constMetric(float64(port.HealthNumeric), enc.DurableID, controller.ControllerID, port.Health, port.HealthReason, port.HealthRecommendation, port.Port)
+
+		//Controllers Port IscsiPort
+		for _, iscsiPort := range port.IscsiPort {
+			ch <- e.sfpStatus.constMetric(float64(iscsiPort.SfpStatusNumeric), enc.DurableID, controller.ControllerID, iscsiPort.SfpStatus, port.Port)
+			ch <- e.sfpPresent.constMetric(float64(iscsiPort.SfpPresentNumeric), enc.DurableID, controller.ControllerID, iscsiPort.SfpPresent, port.Port)
+		}
+	}
+}
+func (e enclosures) collectControllerExpanderPorts(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
+	for _, expanderPorts := range controller.ExpanderPorts {
+		ch <- e.enclosureID.constMetric(float64(expanderPorts.EnclosureID), enc.DurableID, expanderPorts.Name, controller.ControllerID)
+		ch <- e.expanderPortsController.constMetric(float64(expanderPorts.ControllerNumeric), enc.DurableID, expanderPorts.Name, controller.ControllerID, expanderPorts.Controller)
+		ch <- e.sasPortType.constMetric(float64(expanderPorts.SasPortTypeNumeric), enc.DurableID, controller.ControllerID, expanderPorts.SasPortType, expanderPorts.Name)
+		ch <- e.sasPortIndex.constMetric(float64(expanderPorts.SasPortIndex), enc.DurableID, controller.ControllerID, expanderPorts.Name)
+		ch <- e.expanderPortsStatus.constMetric(float64(expanderPorts.StatusNumeric), enc.DurableID, controller.ControllerID, expanderPorts.Status, expanderPorts.Name)
+		ch <- e.expanderPortsHealth.constMetric(float64(expanderPorts.HealthNumeric), enc.DurableID, controller.ControllerID, expanderPorts.Health, expanderPorts.HealthReason, expanderPorts.HealthRecommendation, expanderPorts.Name)
+	}
+}
+func (e enclosures) collectControllerCompactFlash(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
+	for _, compactFlash := range controller.CompactFlash {
+		ch <- e.compactFlashStatus.constMetric(float64(compactFlash.StatusNumeric), enc.DurableID, controller.ControllerID, compactFlash.Status, compactFlash.Name)
+		ch <- e.cacheFlush.constMetric(float64(compactFlash.CacheFlushNumeric), enc.DurableID, controller.ControllerID, compactFlash.CacheFlush, compactFlash.Name)
+		ch <- e.compactFlashHealth.constMetric(float64(compactFlash.HealthNumeric), enc.DurableID, controller.ControllerID, compactFlash.Name, compactFlash.Health, compactFlash.HealthReason, compactFlash.HealthRecommendation)
+	}
+}
+func (e enclosures) collectControllerExpanders(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
+	for _, expanders := range controller.Expanders {
+		ch <- e.pathID.constMetric(float64(expanders.PathIDNumeric), enc.DurableID, controller.ControllerID, expanders.PathID, expanders.Name)
+		ch <- e.expandersStatus.constMetric(float64(expanders.StatusNumeric), enc.DurableID, controller.ControllerID, expanders.Status, expanders.Name)
+		ch <- e.expandersHealth.constMetric(float64(expanders.HealthNumeric), enc.DurableID, controller.ControllerID, expanders.Health, expanders.HealthReason, expanders.HealthRecommendation, expanders.Name)
 	}
 }
