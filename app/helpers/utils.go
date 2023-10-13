@@ -9,3 +9,7 @@ func StringToFloat(string fStr) float {
 	}
 	return f
 }
+
+func IntToString(int i) string {
+	return strconv.Itoa(i)
+}
