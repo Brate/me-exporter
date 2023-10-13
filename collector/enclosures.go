@@ -10,10 +10,7 @@ import (
 type enclosures struct {
 	//All used durable-id in your labels
 	meSession                *MeMetrics
-	enclosureWwn             descMétrica
-	location                 descMétrica
-	rackNumber               descMétrica
-	rackPosition             descMétrica
+	up                       descMétrica
 	numberOfCoolingsElements descMétrica
 	numberOfDisks            descMétrica
 	numberOfPowerSupplies    descMétrica
@@ -24,7 +21,7 @@ type enclosures struct {
 
 	//Controllers
 	controllerID         descMétrica
-	up                   descMétrica
+	controllerUp         descMétrica
 	disks                descMétrica
 	numberOfStoragePools descMétrica
 	virtualDisks         descMétrica
@@ -102,26 +99,11 @@ func init() {
 func NewEnclosuresCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 	return &enclosures{
 		meSession: me,
-		//enclosureWwn: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "enclosure_wwn"),
-		//		"Enclosure WWN", []string{"durable_id", "enclosure_wwn"}),
-		//},
-		//location: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "location"),
-		//		"Location", []string{"durable_id", "location"}),
-		//},
-		//rackNumber: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "rack_number"),
-		//		"Rack number", []string{"durable_id"}),
-		//},
-		//rackPosition: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "rack_position"),
-		//		"Rack position", []string{"durable_id"}),
-		//},
+		up: descMétrica{prometheus.GaugeValue,
+			NewDescritor(
+				NomeMetrica("enclosure", "up"),
+				"Up", []string{"durable_id", "up", "enclosure_wwn", "location", "rack_number", "rack_position"}),
+		},
 		numberOfCoolingsElements: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("enclosure", "coolings_elements_count"),
@@ -164,7 +146,7 @@ func NewEnclosuresCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("enclosure", "controller_id"),
 				"Controller ID", []string{"durable_id", "controller_id"}),
 		},
-		up: descMétrica{prometheus.GaugeValue,
+		controllerUp: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("enclosure", "up"),
 				"Up", []string{"durable_id", "controller_id", "vendor", "model", "revision"}),
@@ -441,10 +423,7 @@ func (e enclosures) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, enc := range e.meSession.enclosures {
-		ch <- prometheus.MustNewConstMetric(e.enclosureWwn.desc, e.enclosureWwn.tipo, 1, enc.DurableID, enc.EnclosureWwn)
-		ch <- prometheus.MustNewConstMetric(e.location.desc, e.location.tipo, 1, enc.DurableID, enc.Location)
-		ch <- prometheus.MustNewConstMetric(e.rackNumber.desc, e.rackNumber.tipo, float64(enc.RackNumber), enc.DurableID)
-		ch <- prometheus.MustNewConstMetric(e.rackPosition.desc, e.rackPosition.tipo, float64(enc.RackPosition), enc.DurableID)
+		ch <- prometheus.MustNewConstMetric(e.up.desc, e.up.tipo, 1, enc.DurableID, enc.EnclosureWwn, enc.Location, h.IntToString(enc.RackNumber), h.IntToString(enc.RackPosition))
 		ch <- prometheus.MustNewConstMetric(e.numberOfCoolingsElements.desc, e.numberOfCoolingsElements.tipo, float64(enc.NumberOfCoolingsElements), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.numberOfDisks.desc, e.numberOfDisks.tipo, float64(enc.NumberOfDisks), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.numberOfPowerSupplies.desc, e.numberOfPowerSupplies.tipo, float64(enc.NumberOfPowerSupplies), enc.DurableID)
@@ -456,7 +435,7 @@ func (e enclosures) Update(ch chan<- prometheus.Metric) error {
 		//Controllers
 		for _, controller := range enc.Controllers {
 			ch <- prometheus.MustNewConstMetric(e.controllerID.desc, e.controllerID.tipo, float64(controller.ControllerIDNumeric), enc.DurableID, controller.ControllerID)
-			ch <- prometheus.MustNewConstMetric(e.up.desc, e.up.tipo, 1, enc.DurableID, controller.ControllerID, controller.Vendor, controller.Model, controller.Revision)
+			ch <- prometheus.MustNewConstMetric(e.controllerUp.desc, e.controllerUp.tipo, 1, enc.DurableID, controller.ControllerID, controller.Vendor, controller.Model, controller.Revision)
 			ch <- prometheus.MustNewConstMetric(e.disks.desc, e.disks.tipo, float64(controller.Disks), enc.DurableID)
 			ch <- prometheus.MustNewConstMetric(e.numberOfStoragePools.desc, e.numberOfStoragePools.tipo, float64(controller.NumberOfStoragePools), enc.DurableID)
 			ch <- prometheus.MustNewConstMetric(e.virtualDisks.desc, e.virtualDisks.tipo, float64(controller.VirtualDisks), enc.DurableID)
