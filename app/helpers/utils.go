@@ -2,7 +2,7 @@ package helpers
 
 import "strconv"
 
-func StringToFloat(string fStr) float {
+func StringToFloat(fStr string) float64 {
 	f, err := strconv.ParseFloat(fStr, 64)
 	if err != nil {
 		return 0.0
@@ -10,6 +10,6 @@ func StringToFloat(string fStr) float {
 	return f
 }
 
-func IntToString(int i) string {
+func IntToString(i int) string {
 	return strconv.Itoa(i)
 }
