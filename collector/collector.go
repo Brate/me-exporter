@@ -63,7 +63,7 @@ type MeMetrics struct {
 	diskGroups           []Me.Disk
 	diskStatistic        []Me.DiskStatistic
 	disks                []Me.Drives
-	enclosures           []Me.Enclosures
+	enclosures           []Me.Enclosure
 	expanderStatus       []Me.SasStatusControllerA
 	fans                 []Me.Fans
 	frus                 []Me.EnclosureFru

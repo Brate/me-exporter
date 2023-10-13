@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-type Enclosures struct {
+type Enclosure struct {
 	ObjectName                  string          `json:"object-name"`
 	Meta                        string          `json:"meta"`
 	DurableID                   string          `json:"durable-id"`
@@ -80,8 +80,8 @@ type Enclosures struct {
 }
 
 type httpEnclosures struct {
-	Enclosures []Enclosures `json:"enclosures"`
-	HttpStatus []Status     `json:"status"`
+	Enclosures []Enclosure `json:"enclosures"`
+	HttpStatus []Status    `json:"status"`
 }
 
 func (en *httpEnclosures) GetAndDeserialize(url string) error {
@@ -104,7 +104,7 @@ func (en *httpEnclosures) GetAndDeserialize(url string) error {
 	return nil
 }
 
-func NewMe4Enclosures(url string) []Enclosures {
+func NewMe4Enclosures(url string) []Enclosure {
 	en := &httpEnclosures{}
 	err := en.GetAndDeserialize(url)
 	if err != nil {
@@ -124,7 +124,7 @@ func (sti *httpEnclosures) FromJson(body []byte) error {
 	return nil
 }
 
-func NewMe4EnclosuresFrom(body []byte) (sti []Enclosures, err error) {
+func NewMe4EnclosuresFrom(body []byte) (sti []Enclosure, err error) {
 	hst := &httpEnclosures{}
 	err = json.Unmarshal(body, hst)
 	if err != nil {
@@ -136,17 +136,17 @@ func NewMe4EnclosuresFrom(body []byte) (sti []Enclosures, err error) {
 	return
 }
 
-func NewMe4EnclosuresFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]Enclosures, error) {
+func NewMe4EnclosuresFromRequest(client *http.Client, req *http.Request, log log.Logger) ([]Enclosure, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		_ = level.Error(log).Log("msg", "request error", "error", err)
 
-		return []Enclosures{}, err
+		return []Enclosure{}, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return []Enclosures{}, err
+		return []Enclosure{}, err
 	}
 
 	return NewMe4EnclosuresFrom(body)

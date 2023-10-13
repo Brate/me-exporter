@@ -3,6 +3,8 @@ package collector
 import (
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"me_exporter/Me"
+	h "me_exporter/app/helpers"
 )
 
 type enclosures struct {
@@ -11,7 +13,7 @@ type enclosures struct {
 	enclosureWwn             descMétrica
 	location                 descMétrica
 	rackNumber               descMétrica
-	tackPosition             descMétrica
+	rackPosition             descMétrica
 	numberOfCoolingsElements descMétrica
 	numberOfDisks            descMétrica
 	numberOfPowerSupplies    descMétrica
@@ -94,337 +96,338 @@ type enclosures struct {
 }
 
 func init() {
-	registerCollector("enclosures", NewEnclosuresCollector)
+	registerCollector("enclosure", NewEnclosuresCollector)
 }
 
 func NewEnclosuresCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 	return &enclosures{
 		meSession: me,
-		enclosureWwn: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("enclosures", "enclosure_wwn"),
-				"Enclosure WWN", []string{"durable_id", "enclosure_wwn"}),
-		},
-		location: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("enclosures", "location"),
-				"Location", []string{"durable_id", "location"}),
-		},
-		rackNumber: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("enclosures", "rack_number"),
-				"Rack number", []string{"durable_id"}),
-		},
-		tackPosition: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("enclosures", "rack_position"),
-				"Rack position", []string{"durable_id"}),
-		},
+		//enclosureWwn: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("enclosure", "enclosure_wwn"),
+		//		"Enclosure WWN", []string{"durable_id", "enclosure_wwn"}),
+		//},
+		//location: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("enclosure", "location"),
+		//		"Location", []string{"durable_id", "location"}),
+		//},
+		//rackNumber: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("enclosure", "rack_number"),
+		//		"Rack number", []string{"durable_id"}),
+		//},
+		//rackPosition: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("enclosure", "rack_position"),
+		//		"Rack position", []string{"durable_id"}),
+		//},
 		numberOfCoolingsElements: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "number_of_coolings_elements"),
+				NomeMetrica("enclosure", "coolings_elements_count"),
 				"Number of coolings elements", []string{"durable_id"}),
 		},
 		numberOfDisks: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "number_of_disks"),
+				NomeMetrica("enclosure", "disks_count"),
 				"Number of disks", []string{"durable_id"}),
 		},
 		numberOfPowerSupplies: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "number_of_power_supplies"),
+				NomeMetrica("enclosure", "power_supplies_count"),
 				"Number of power supplies", []string{"durable_id"}),
 		},
 		status: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "status"),
+				NomeMetrica("enclosure", "status"),
 				"Status", []string{"durable_id", "status"}),
 		},
 		slots: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "slots"),
+				NomeMetrica("enclosure", "slots"),
 				"Slots", []string{"durable_id"}),
 		},
 		enclosurePower: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "enclosure_power"),
-				"Enclosure power", []string{"durable_id", "enclosure_power"}),
+				NomeMetrica("enclosure", "power_watts"),
+				"Enclosure power", []string{"durable_id"}),
 		},
 		health: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "health"),
+				NomeMetrica("enclosure", "health"),
 				"Health", []string{"durable_id", "health", "health_reason", "health_recommendation"}),
 		},
+
 		//Controllers
 		controllerID: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "controller_id"),
+				NomeMetrica("enclosure", "controller_id"),
 				"Controller ID", []string{"durable_id", "controller_id"}),
 		},
 		up: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "up"),
+				NomeMetrica("enclosure", "up"),
 				"Up", []string{"durable_id", "controller_id", "vendor", "model", "revision"}),
 		},
 		disks: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "disks"),
+				NomeMetrica("enclosure", "disks"),
 				"Disks", []string{"durable_id"}),
 		},
 		numberOfStoragePools: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "number_of_storage_pools"),
+				NomeMetrica("enclosure", "number_of_storage_pools"),
 				"Number of storage pools", []string{"durable_id"}),
 		},
 		virtualDisks: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "virtual_disks"),
+				NomeMetrica("enclosure", "virtual_disks"),
 				"Virtual disks", []string{"durable_id"}),
 		},
 		cacheMemorySize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "cache_memory_size"),
+				NomeMetrica("enclosure", "cache_memory_size"),
 				"Cache memory size in MB", []string{"durable_id"}),
 		},
 		systemMemorySize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "system_memory_size"),
+				NomeMetrica("enclosure", "system_memory_size"),
 				"System memory size in MB", []string{"durable_id"}),
 		},
 		controllerStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "controller_status"),
+				NomeMetrica("enclosure", "controller_status"),
 				"Controller status", []string{"durable_id", "controller_id", "status"}),
 		},
 		failedOver: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "failed_over"),
+				NomeMetrica("enclosure", "failed_over"),
 				"Failed over", []string{"durable_id", "controller_id", "failed_over"}),
 		},
 		failOverReason: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "fail_over_reason"),
+				NomeMetrica("enclosure", "fail_over_reason"),
 				"Fail over reason", []string{"durable_id", "controller_id", "fail_over_reason"}),
 		},
 		controllersStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "controllers_status"),
+				NomeMetrica("enclosure", "controllers_status"),
 				"Controllers status", []string{"durable_id", "controller_id", "status"}),
 		},
 		cacheLock: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "cache_lock"),
+				NomeMetrica("enclosure", "cache_lock"),
 				"Cache lock", []string{"durable_id", "controller_id", "cache_lock"}),
 		},
 		writePolicy: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "write_policy"),
+				NomeMetrica("enclosure", "write_policy"),
 				"Write policy", []string{"durable_id", "controller_id", "write_policy"}),
 		},
 		position: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "position"),
+				NomeMetrica("enclosure", "position"),
 				"Position", []string{"durable_id", "controller_id", "position"}),
 		},
 		redundancyMode: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "redundancy_mode"),
+				NomeMetrica("enclosure", "redundancy_mode"),
 				"Redundancy mode", []string{"durable_id", "controller_id", "redundancy_mode"}),
 		},
 		redundancyStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "redundancy_status"),
+				NomeMetrica("enclosure", "redundancy_status"),
 				"Redundancy status", []string{"durable_id", "controller_id", "redundancy_status"}),
 		},
 		controllerHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "controller_health"),
+				NomeMetrica("enclosure", "controller_health"),
 				"Controller health", []string{"durable_id", "controller_id", "controller_health_reason", "controller_health_recommendation"}),
 		},
 		//Controllers NetworkParameters
 		activeVersion: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "active_version"),
+				NomeMetrica("enclosure", "active_version"),
 				"Active version", []string{"durable_id", "controller_id"}),
 		},
 		linkSpeed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "link_speed"),
+				NomeMetrica("enclosure", "link_speed"),
 				"Link speed in Mbps", []string{"durable_id", "controller_id", "link_speed"}),
 		},
 		duplexMode: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "duplex_mode"),
+				NomeMetrica("enclosure", "duplex_mode"),
 				"Duplex mode", []string{"durable_id", "controller_id", "duplex_mode"}),
 		},
 		networkHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "network_health"),
+				NomeMetrica("enclosure", "network_health"),
 				"Network health", []string{"durable_id", "controller_id", "network_health", "network_health_recommendation"}),
 		},
 		networkPingBroadcast: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "network_ping_broadcast"),
+				NomeMetrica("enclosure", "network_ping_broadcast"),
 				"Network ping broadcast", []string{"durable_id", "controller_id", "network_ping_broadcast"}),
 		},
 		//Controllers Port
 		controller: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "controller"),
+				NomeMetrica("enclosure", "controller"),
 				"Controller", []string{"durable_id", "controller_id", "controller", "port"}),
 		},
 		portType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "port_type"),
+				NomeMetrica("enclosure", "port_type"),
 				"Port type", []string{"durable_id", "controller_id", "port_type", "port"}),
 		},
 		portStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "port_status"),
+				NomeMetrica("enclosure", "port_status"),
 				"Port status", []string{"durable_id", "controller_id", "port_status", "port"}),
 		},
 		actualSpeed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "actual_speed"),
+				NomeMetrica("enclosure", "actual_speed"),
 				"Actual speed in GB", []string{"durable_id", "controller_id", "actual_speed", "port"}),
 		},
 		configuredSpeed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "configured_speed"),
+				NomeMetrica("enclosure", "configured_speed"),
 				"Configured speed", []string{"durable_id", "controller_id", "configured_speed", "port"}),
 		},
 		portHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "port_health"),
+				NomeMetrica("enclosure", "port_health"),
 				"Port health", []string{"durable_id", "controller_id", "port_health", "health_reason", "health_recommendation", "port"}),
 		},
 
 		//Controllers Port IscsiPort
 		sfpStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "sfp_status"),
+				NomeMetrica("enclosure", "sfp_status"),
 				"SFP status", []string{"durable_id", "controller_id", "sfp_status", "port"}),
 		},
 		sfpPresent: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "sfp_present"),
+				NomeMetrica("enclosure", "sfp_present"),
 				"SFP present", []string{"durable_id", "controller_id", "sfp_present", "port"}),
 		},
 		//Controllers ExpanderPorts
 		enclosureID: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "enclosure_id"),
+				NomeMetrica("enclosure", "enclosure_id"),
 				"Enclosure ID", []string{"durable_id", "name", "controller"}),
 		},
 		expanderPortsController: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "expander_ports_controller"),
+				NomeMetrica("enclosure", "expander_ports_controller"),
 				"Expander ports controller", []string{"durable_id", "name", "controller", "expander_ports_controller"}),
 		},
 		sasPortType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "sas_port_type"),
+				NomeMetrica("enclosure", "sas_port_type"),
 				"SAS port type", []string{"durable_id", "controller", "sas_port_type", "name"}),
 		},
 		sasPortIndex: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "sas_port_index"),
+				NomeMetrica("enclosure", "sas_port_index"),
 				"SAS port index", []string{"durable_id", "controller", "name"}),
 		},
 		expanderPortsStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "expander_ports_status"),
+				NomeMetrica("enclosure", "expander_ports_status"),
 				"Expander ports status", []string{"durable_id", "controller", "expander_ports_status", "name"}),
 		},
 		expanderPortsHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "expander_ports_health"),
+				NomeMetrica("enclosure", "expander_ports_health"),
 				"Expander ports health", []string{"durable_id", "controller", "expander_ports_health", "health_reason", "health_recommendation", "name"}),
 		},
 		//Controllers CompactFlash
 		compactFlashStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "compact_flash_status"),
+				NomeMetrica("enclosure", "compact_flash_status"),
 				"Compact flash status", []string{"durable_id", "controller", "compact_flash_status", "compact_flash_name"}),
 		},
 		cacheFlush: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "cache_flush"),
+				NomeMetrica("enclosure", "cache_flush"),
 				"Cache flush", []string{"durable_id", "controller", "cache_flush", "compact_flash_name"}),
 		},
 		compactFlashHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "compact_flash_health"),
+				NomeMetrica("enclosure", "compact_flash_health"),
 				"Compact flash health", []string{"durable_id", "controller", "compact_flash_name", "compact_flash_health",
 					"compact_flash_health_reason", "compact_flash_health_recommendation"}),
 		},
 		//Controllers Expanders
 		pathID: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "path_id"),
+				NomeMetrica("enclosure", "path_id"),
 				"Path ID", []string{"durable_id", "controller_id", "path_id", "expanders_name"}),
 		},
 		expandersStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "expanders_status"),
+				NomeMetrica("enclosure", "expanders_status"),
 				"Expanders status", []string{"durable_id", "controller_id", "expanders_status", "expanders_name"}),
 		},
 		expandersHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "expanders_health"),
+				NomeMetrica("enclosure", "expanders_health"),
 				"Expanders health", []string{"durable_id", "controller_id", "expanders_health", "expanders_health_reason", "expanders_health_recommendation", "expanders_name"}),
 		},
 		//PowerSupplies
 		powerSuppliesEnclosureID: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_enclosure_id"),
+				NomeMetrica("enclosure", "power_supplies_enclosure_id"),
 				"Power supplies enclosure ID", []string{"durable_id", "name"}),
 		},
 		powerSuppliesStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_status"),
+				NomeMetrica("enclosure", "power_supplies_status"),
 				"Power supplies status", []string{"durable_id", "name", "power_supplies_status"}),
 		},
 		powerSuppliesPosition: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_position"),
+				NomeMetrica("enclosure", "power_supplies_position"),
 				"Power supplies position", []string{"durable_id", "name", "power_supplies_position"}),
 		},
 		powerSuppliesHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_health"),
+				NomeMetrica("enclosure", "power_supplies_health"),
 				"Power supplies health", []string{"durable_id", "name", "power_supplies_health",
 					"power_supplies_health_reason", "power_supplies_health_recommendation"}),
 		},
 		//PowerSupplies Fans
 		statusSes: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "status_ses"),
+				NomeMetrica("enclosure", "status_ses"),
 				"Status SES", []string{"durable_id", "name", "status_ses"}),
 		},
 		powerSuppliesFansExtendedStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_fans_extended_status"),
+				NomeMetrica("enclosure", "power_supplies_fans_extended_status"),
 				"Power supplies fans extended status", []string{"durable_id", "name", "power_supplies_fans_extended_status"}),
 		},
 		powerSuppliesFansStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_fans_status"),
+				NomeMetrica("enclosure", "power_supplies_fans_status"),
 				"Power supplies fans status", []string{"durable_id", "name", "power_supplies_fans_status"}),
 		},
 		speed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "speed"),
+				NomeMetrica("enclosure", "speed"),
 				"Speed", []string{"durable_id", "name"}),
 		},
 		powerSuppliesFansPosition: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_fans_position"),
+				NomeMetrica("enclosure", "power_supplies_fans_position"),
 				"Power supplies fans position", []string{"durable_id", "name", "power_supplies_fans_position"}),
 		},
 		powerSuppliesFansHealth: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("enclosures", "power_supplies_fans_health"),
+				NomeMetrica("enclosure", "power_supplies_fans_health"),
 				"Power supplies fans health", []string{"durable_id", "name", "power_supplies_fans_health",
 					"power_supplies_fans_health_reason", "power_supplies_fans_health_recommendation"}),
 		},
@@ -441,13 +444,13 @@ func (e enclosures) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(e.enclosureWwn.desc, e.enclosureWwn.tipo, 1, enc.DurableID, enc.EnclosureWwn)
 		ch <- prometheus.MustNewConstMetric(e.location.desc, e.location.tipo, 1, enc.DurableID, enc.Location)
 		ch <- prometheus.MustNewConstMetric(e.rackNumber.desc, e.rackNumber.tipo, float64(enc.RackNumber), enc.DurableID)
-		ch <- prometheus.MustNewConstMetric(e.tackPosition.desc, e.tackPosition.tipo, float64(enc.RackPosition), enc.DurableID)
+		ch <- prometheus.MustNewConstMetric(e.rackPosition.desc, e.rackPosition.tipo, float64(enc.RackPosition), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.numberOfCoolingsElements.desc, e.numberOfCoolingsElements.tipo, float64(enc.NumberOfCoolingsElements), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.numberOfDisks.desc, e.numberOfDisks.tipo, float64(enc.NumberOfDisks), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.numberOfPowerSupplies.desc, e.numberOfPowerSupplies.tipo, float64(enc.NumberOfPowerSupplies), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.status.desc, e.status.tipo, float64(enc.StatusNumeric), enc.DurableID, enc.Status)
 		ch <- prometheus.MustNewConstMetric(e.slots.desc, e.slots.tipo, float64(enc.Slots), enc.DurableID)
-		ch <- prometheus.MustNewConstMetric(e.enclosurePower.desc, e.enclosurePower.tipo, 1, enc.DurableID, enc.EnclosurePower)
+		ch <- prometheus.MustNewConstMetric(e.enclosurePower.desc, e.enclosurePower.tipo, h.StringToFloat(enc.EnclosurePower), enc.DurableID)
 		ch <- prometheus.MustNewConstMetric(e.health.desc, e.health.tipo, float64(enc.HealthNumeric), enc.DurableID, enc.Health, enc.HealthReason, enc.HealthRecommendation)
 
 		//Controllers
@@ -522,24 +525,31 @@ func (e enclosures) Update(ch chan<- prometheus.Metric) error {
 
 		}
 
-		//PowerSupplies
-		for _, powerSupplies := range enc.PowerSupplies {
-			ch <- prometheus.MustNewConstMetric(e.powerSuppliesEnclosureID.desc, e.powerSuppliesEnclosureID.tipo, float64(powerSupplies.EnclosureID), enc.DurableID, powerSupplies.Name)
-			ch <- prometheus.MustNewConstMetric(e.powerSuppliesStatus.desc, e.powerSuppliesStatus.tipo, float64(powerSupplies.StatusNumeric), enc.DurableID, powerSupplies.Name, powerSupplies.Status)
-			ch <- prometheus.MustNewConstMetric(e.powerSuppliesPosition.desc, e.powerSuppliesPosition.tipo, float64(powerSupplies.PositionNumeric), enc.DurableID, powerSupplies.Name, powerSupplies.Position)
-			ch <- prometheus.MustNewConstMetric(e.powerSuppliesHealth.desc, e.powerSuppliesHealth.tipo, float64(powerSupplies.HealthNumeric), enc.DurableID, powerSupplies.Name, powerSupplies.Health, powerSupplies.HealthReason, powerSupplies.HealthRecommendation)
-
-			//PowerSupplies Fans
-			for _, powerSuppliesFans := range powerSupplies.Fan {
-				ch <- prometheus.MustNewConstMetric(e.statusSes.desc, e.statusSes.tipo, float64(powerSuppliesFans.StatusSesNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.StatusSes)
-				ch <- prometheus.MustNewConstMetric(e.powerSuppliesFansExtendedStatus.desc, e.powerSuppliesFansExtendedStatus.tipo, 1, enc.DurableID, powerSupplies.Name, powerSuppliesFans.ExtendedStatus)
-				ch <- prometheus.MustNewConstMetric(e.powerSuppliesFansStatus.desc, e.powerSuppliesFansStatus.tipo, float64(powerSuppliesFans.StatusNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Status)
-				ch <- prometheus.MustNewConstMetric(e.speed.desc, e.speed.tipo, float64(powerSuppliesFans.Speed), enc.DurableID, powerSupplies.Name)
-				ch <- prometheus.MustNewConstMetric(e.powerSuppliesFansPosition.desc, e.powerSuppliesFansPosition.tipo, float64(powerSuppliesFans.PositionNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Position)
-				ch <- prometheus.MustNewConstMetric(e.powerSuppliesFansHealth.desc, e.powerSuppliesFansHealth.tipo, float64(powerSuppliesFans.HealthNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Health, powerSuppliesFans.HealthReason, powerSuppliesFans.HealthRecommendation)
-			}
-		}
+		e.collectPowerSupplies(ch, enc)
 	}
 
 	return nil
+}
+
+func (m *descMétrica) constMetric(value float64, labels ...string) prometheus.Metric {
+	return prometheus.MustNewConstMetric(m.desc, m.tipo, value, labels...)
+}
+
+func (e enclosures) collectPowerSupplies(ch chan<- prometheus.Metric, enc Me.Enclosure) {
+	for _, powerSupplies := range enc.PowerSupplies {
+		ch <- e.powerSuppliesEnclosureID.constMetric(float64(powerSupplies.EnclosureID), enc.DurableID, powerSupplies.Name)
+		ch <- e.powerSuppliesStatus.constMetric(float64(powerSupplies.StatusNumeric), enc.DurableID, powerSupplies.Name, powerSupplies.Status)
+		ch <- e.powerSuppliesPosition.constMetric(float64(powerSupplies.PositionNumeric), enc.DurableID, powerSupplies.Name, powerSupplies.Position)
+		ch <- e.powerSuppliesHealth.constMetric(float64(powerSupplies.HealthNumeric), enc.DurableID, powerSupplies.Name, powerSupplies.Health, powerSupplies.HealthReason, powerSupplies.HealthRecommendation)
+
+		// Fans
+		for _, powerSuppliesFans := range powerSupplies.Fan {
+			ch <- e.statusSes.constMetric(float64(powerSuppliesFans.StatusSesNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.StatusSes)
+			ch <- e.powerSuppliesFansExtendedStatus.constMetric(1, enc.DurableID, powerSupplies.Name, powerSuppliesFans.ExtendedStatus)
+			ch <- e.powerSuppliesFansStatus.constMetric(float64(powerSuppliesFans.StatusNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Status)
+			ch <- e.speed.constMetric(float64(powerSuppliesFans.Speed), enc.DurableID, powerSupplies.Name)
+			ch <- e.powerSuppliesFansPosition.constMetric(float64(powerSuppliesFans.PositionNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Position)
+			ch <- e.powerSuppliesFansHealth.constMetric(float64(powerSuppliesFans.HealthNumeric), enc.DurableID, powerSupplies.Name, powerSuppliesFans.Health, powerSuppliesFans.HealthReason, powerSuppliesFans.HealthRecommendation)
+		}
+	}
 }
