@@ -441,8 +441,8 @@ func (e enclosures) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (m *descMétrica) constMetric(value float64, labels ...string) prometheus.Metric {
-	return prometheus.MustNewConstMetric(m.desc, m.tipo, value, labels...)
+func (d *descMétrica) constMetric(value float64, labels ...string) prometheus.Metric {
+	return prometheus.MustNewConstMetric(d.desc, d.tipo, value, labels...)
 }
 
 func (e enclosures) collectControllers(ch chan<- prometheus.Metric, enc Me.Enclosure) {
