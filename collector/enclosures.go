@@ -8,7 +8,6 @@ import (
 )
 
 type enclosures struct {
-	//All used durable-id in your labels
 	meSession                *MeMetrics
 	up                       descMétrica
 	numberOfCoolingsElements descMétrica
@@ -57,14 +56,6 @@ type enclosures struct {
 	sfpStatus  descMétrica
 	sfpPresent descMétrica
 
-	//Controllers ExpanderPorts
-	//enclosureID             descMétrica
-	//expanderPortsController descMétrica
-	//sasPortType             descMétrica
-	//sasPortIndex            descMétrica
-	//expanderPortsStatus     descMétrica
-	//expanderPortsHealth     descMétrica
-
 	//Controllers CompactFlash
 	compactFlashStatus descMétrica
 	cacheFlush         descMétrica
@@ -76,7 +67,6 @@ type enclosures struct {
 	expandersHealth descMétrica
 
 	//PowerSupplies
-	//powerSuppliesEnclosureID descMétrica
 	powerSuppliesStatus   descMétrica
 	powerSuppliesPosition descMétrica
 	powerSuppliesHealth   descMétrica
@@ -249,12 +239,6 @@ func NewEnclosuresCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("enclosure", "network_ping_broadcast"),
 				"Network ping broadcast", []string{"durable_id", "controller_id", "network_ping_broadcast"}),
 		},
-		//Controllers Port
-		//controller: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "controller_port"),
-		//		"Controller", []string{"durable_id", "controller_id", "port"}),
-		//},
 		portType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("enclosure", "port_type"),
@@ -293,39 +277,6 @@ func NewEnclosuresCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				"SFP present", []string{"durable_id", "controller_id", "port", "status"}),
 		},
 
-		//Controllers ExpanderPorts
-		//
-		//enclosureID: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "enclosure_id"),
-		//		"Enclosure ID", []string{"durable_id", "name", "controller"}),
-		//},
-		//expanderPortsController: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "expander_ports_controller"),
-		//		"Expander ports controller", []string{"durable_id", "name", "controller", "expander_ports_controller"}),
-		//},
-		//sasPortType: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "sas_port_type"),
-		//		"SAS port type", []string{"durable_id", "controller", "sas_port_type", "name"}),
-		//},
-		//sasPortIndex: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "sas_port_index"),
-		//		"SAS port index", []string{"durable_id", "controller", "name"}),
-		//},
-		//expanderPortsStatus: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "expander_ports_status"),
-		//		"Expander ports status", []string{"durable_id", "controller", "expander_ports_status", "name"}),
-		//},
-		//expanderPortsHealth: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "expander_ports_health"),
-		//		"Expander ports health", []string{"durable_id", "controller", "expander_ports_health", "health_reason", "health_recommendation", "name"}),
-		//},
-
 		//Controllers CompactFlash
 		compactFlashStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
@@ -359,12 +310,6 @@ func NewEnclosuresCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("enclosure", "expanders_health"),
 				"Expanders health", []string{"durable_id", "controller_id", "expanders_health", "expanders_health_reason", "expanders_health_recommendation", "expanders_name"}),
 		},
-		//PowerSupplies
-		//powerSuppliesEnclosureID: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("enclosure", "power_supplies_enclosure_id"),
-		//		"Power supplies enclosure ID", []string{"durable_id", "name"}),
-		//},
 		powerSuppliesStatus: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("enclosure", "power_supplies_status"),
@@ -468,7 +413,6 @@ func (e enclosures) collectControllers(ch chan<- prometheus.Metric, enc Me.Enclo
 		// Helpers
 		e.collectControllerNetworkParameters(ch, enc, controller)
 		e.collectControllerPorts(ch, enc, controller)
-		//e.collectControllerExpanderPorts(ch, enc, controller)
 		e.collectControllerCompactFlash(ch, enc, controller)
 		e.collectControllerExpanders(ch, enc, controller)
 
@@ -497,14 +441,12 @@ func (e enclosures) collectControllerNetworkParameters(ch chan<- prometheus.Metr
 	for _, networkParameters := range controller.NetworkParameters {
 		ch <- e.activeVersion.constMetric(float64(networkParameters.ActiveVersion), enc.DurableID, controller.ControllerID)
 		ch <- e.linkSpeed.constMetric(float64(networkParameters.LinkSpeedNumeric), enc.DurableID, controller.ControllerID, networkParameters.LinkSpeed)
-		//ch <- e.duplexMode.constMetric(float64(networkParameters.DuplexModeNumeric), enc.DurableID, controller.ControllerID, networkParameters.DuplexMode)
 		ch <- e.networkHealth.constMetric(float64(networkParameters.HealthNumeric), enc.DurableID, controller.ControllerID, networkParameters.Health, networkParameters.HealthRecommendation)
 		ch <- e.networkPingBroadcast.constMetric(float64(networkParameters.PingBroadcastNumeric), enc.DurableID, controller.ControllerID, networkParameters.PingBroadcast)
 	}
 }
 func (e enclosures) collectControllerPorts(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
 	for _, port := range controller.Port {
-		//ch <- e.controller.constMetric(float64(port.ControllerNumeric), enc.DurableID, controller.ControllerID, port.Port)
 		ch <- e.portType.constMetric(float64(port.PortTypeNumeric), enc.DurableID, controller.ControllerID, port.PortType, port.Port)
 		ch <- e.portStatus.constMetric(float64(port.StatusNumeric), enc.DurableID, controller.ControllerID, port.Status, port.Port)
 		ch <- e.actualSpeed.constMetric(float64(port.ActualSpeedNumeric), enc.DurableID, controller.ControllerID, port.ActualSpeed, port.Port)
@@ -519,16 +461,6 @@ func (e enclosures) collectControllerPorts(ch chan<- prometheus.Metric, enc Me.E
 	}
 }
 
-//	func (e enclosures) collectControllerExpanderPorts(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
-//		for _, expanderPorts := range controller.ExpanderPorts {
-//			ch <- e.enclosureID.constMetric(float64(expanderPorts.EnclosureID), enc.DurableID, expanderPorts.Name, controller.ControllerID)
-//			ch <- e.expanderPortsController.constMetric(float64(expanderPorts.ControllerNumeric), enc.DurableID, expanderPorts.Name, controller.ControllerID, expanderPorts.Controller)
-//			ch <- e.sasPortType.constMetric(float64(expanderPorts.SasPortTypeNumeric), enc.DurableID, controller.ControllerID, expanderPorts.SasPortType, expanderPorts.Name)
-//			ch <- e.sasPortIndex.constMetric(float64(expanderPorts.SasPortIndex), enc.DurableID, controller.ControllerID, expanderPorts.Name)
-//			ch <- e.expanderPortsStatus.constMetric(float64(expanderPorts.StatusNumeric), enc.DurableID, controller.ControllerID, expanderPorts.Status, expanderPorts.Name)
-//			ch <- e.expanderPortsHealth.constMetric(float64(expanderPorts.HealthNumeric), enc.DurableID, controller.ControllerID, expanderPorts.Health, expanderPorts.HealthReason, expanderPorts.HealthRecommendation, expanderPorts.Name)
-//		}
-//	}
 func (e enclosures) collectControllerCompactFlash(ch chan<- prometheus.Metric, enc Me.Enclosure, controller Me.Controllers) {
 	for _, compactFlash := range controller.CompactFlash {
 		ch <- e.compactFlashStatus.constMetric(float64(compactFlash.StatusNumeric), enc.DurableID, controller.ControllerID, compactFlash.Status, compactFlash.Name)
