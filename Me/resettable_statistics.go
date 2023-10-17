@@ -1,6 +1,6 @@
 package Me
 
-type ResettableStatistics struct {
+type ResetTableStatistics struct {
 	ObjectName            string `json:"object-name"`
 	Meta                  string `json:"meta"`
 	SerialNumber          string `json:"serial-number"`

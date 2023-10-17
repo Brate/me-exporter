@@ -20,7 +20,7 @@ type TierStatistics struct {
 	PagesDeallocPerMinute  int                    `json:"pages-dealloc-per-minute"`
 	PagesReclaimed         int                    `json:"pages-reclaimed"`
 	NumPagesUnmapPerMinute int                    `json:"num-pages-unmap-per-minute"`
-	ResettableStatistics   []ResettableStatistics `json:"resettable-statistics"`
+	ResettableStatistics   []ResetTableStatistics `json:"resettable-statistics"`
 }
 
 type httpTierStatistics struct {

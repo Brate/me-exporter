@@ -30,7 +30,7 @@ type PoolStatistics struct {
 	NumPagePromotionsToSsdBlocked    int                    `json:"num-page-promotions-to-ssd-blocked"`
 	NumHotPageMoves                  int                    `json:"num-hot-page-moves"`
 	NumColdPageMoves                 int                    `json:"num-cold-page-moves"`
-	ResettableStatistics             []ResettableStatistics `json:"resettable-statistics"`
+	ResettableStatistics             []ResetTableStatistics `json:"resettable-statistics"`
 	TierStatistics                   []TierStatistics       `json:"tier-statistics"`
 }
 
