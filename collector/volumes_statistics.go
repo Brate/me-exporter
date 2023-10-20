@@ -7,20 +7,20 @@ import (
 
 type volumeStatistics struct {
 	//All labels volume-name
-	meSession              *MeMetrics
-	up                     descMétrica
-	bytesPerSecond         descMétrica
-	numberOfReads          descMétrica
-	numberOfWrites         descMétrica
-	dataRead               descMétrica
-	dataWritten            descMétrica
-	allocatedPages         descMétrica
-	percentTierSsd         descMétrica
-	percentTierSas         descMétrica
-	percentTierSata        descMétrica
-	percentAllocatedRfc    descMétrica
-	pagesAllocPerMinute    descMétrica
-	pagesDeallocPerMinute  descMétrica
+	meSession *MeMetrics
+	//up        descMétrica
+	//bytesPerSecond         descMétrica
+	numberOfReads       descMétrica
+	numberOfWrites      descMétrica
+	dataRead            descMétrica
+	dataWritten         descMétrica
+	allocatedPages      descMétrica
+	percentTierSsd      descMétrica
+	percentTierSas      descMétrica
+	percentTierSata     descMétrica
+	percentAllocatedRfc descMétrica
+	//pagesAllocPerMinute    descMétrica
+	//pagesDeallocPerMinute  descMétrica
 	sharedPages            descMétrica
 	writeCacheHits         descMétrica
 	writeCacheMisses       descMétrica
@@ -31,10 +31,10 @@ type volumeStatistics struct {
 	readAheadOperations    descMétrica
 	writeCacheSpace        descMétrica
 	writeCachePercent      descMétrica
-	resetTime              descMétrica
-	startSampleTime        descMétrica
-	stopSampleTime         descMétrica
-	logger                 log.Logger
+	//resetTime              descMétrica
+	//startSampleTime        descMétrica
+	//stopSampleTime         descMétrica
+	logger log.Logger
 }
 
 func init() {
@@ -44,135 +44,106 @@ func init() {
 func NewVolumeStatisticsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 	return &volumeStatistics{
 		meSession: me,
-		up: descMétrica{prometheus.GaugeValue,
+		// TODO: Mover para NewVolume
+		//up: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume_statistics", "up"),
+		//		"Up", []string{"volume_name", "serial_number"}),
+		//},
+		numberOfReads: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "up"),
-				"Up", []string{"volume_name", "serial_number"}),
-		},
-		bytesPerSecond: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "bytes_per_second"),
-				"Bytes per second", []string{"volume_name", "bytes_per_second"}),
-		},
-		numberOfReads: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "number_of_reads"),
+				NomeMetrica("volume", "read_count"),
 				"Number of reads", []string{"volume_name"}),
 		},
-		numberOfWrites: descMétrica{prometheus.GaugeValue,
+		numberOfWrites: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "number_of_writes"),
+				NomeMetrica("volume", "write_count"),
 				"Number of writes", []string{"volume_name"}),
 		},
-		dataRead: descMétrica{prometheus.GaugeValue,
+		dataRead: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "data_read"),
+				NomeMetrica("volume", "data_read_bytes"),
 				"Data read", []string{"volume_name"}),
 		},
-		dataWritten: descMétrica{prometheus.GaugeValue,
+		dataWritten: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "data_written"),
+				NomeMetrica("volume", "data_written_bytes"),
 				"Data written", []string{"volume_name"}),
 		},
 		allocatedPages: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "allocated_pages"),
-				"Allocated pages", []string{"volume_name"}),
+				NomeMetrica("volume", "allocated_pages"),
+				"number of pages allocated to the volume", []string{"volume_name"}),
 		},
 		percentTierSsd: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "percent_tier_ssd"),
-				"Percent tier ssd", []string{"volume_name"}),
+				NomeMetrica("volume", "percent_tier_ssd"),
+				"percentage of volume capacity occupied by data in the Performance tier", []string{"volume_name"}),
 		},
 		percentTierSas: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "percent_tier_sas"),
-				"Percent tier sas", []string{"volume_name"}),
+				NomeMetrica("volume", "percent_tier_sas"),
+				"percentage of volume capacity occupied by data in the Standard tier", []string{"volume_name"}),
 		},
 		percentTierSata: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "percent_tier_sata"),
-				"Percent tier sata", []string{"volume_name"}),
+				NomeMetrica("volume", "percent_tier_sata"),
+				"percentage of volume capacity occupied by data in the Archive tier", []string{"volume_name"}),
 		},
 		percentAllocatedRfc: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "percent_allocated_rfc"),
-				"Percent allocated rfc", []string{"volume_name"}),
-		},
-		pagesAllocPerMinute: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "pages_alloc_per_minute"),
-				"Pages alloc per minute", []string{"volume_name"}),
-		},
-		pagesDeallocPerMinute: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "pages_dealloc_per_minute"),
-				"Pages dealloc per minute", []string{"volume_name"}),
+				NomeMetrica("volume", "percent_rfc"),
+				"percentage of volume capacity occupied by data in read cache", []string{"volume_name"}),
 		},
 		sharedPages: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "shared_pages"),
-				"Shared pages", []string{"volume_name"}),
+				NomeMetrica("volume", "shared_pages"),
+				"number of pages that are shared between this volume and any other volumes", []string{"volume_name"}),
 		},
-		writeCacheHits: descMétrica{prometheus.GaugeValue,
+		writeCacheHits: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "write_cache_hits"),
-				"Write cache hits", []string{"volume_name"}),
+				NomeMetrica("volume", "write_cache_hits"),
+				"number of times the block written to is found in cache", []string{"volume_name"}),
 		},
-		writeCacheMisses: descMétrica{prometheus.GaugeValue,
+		writeCacheMisses: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "write_cache_misses"),
-				"Write cache misses", []string{"volume_name"}),
+				NomeMetrica("volume", "write_cache_misses"),
+				"number of times the block written to is not found in cache", []string{"volume_name"}),
 		},
-		readCacheHits: descMétrica{prometheus.GaugeValue,
+		readCacheHits: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "read_cache_hits"),
-				"Read cache hits", []string{"volume_name"}),
+				NomeMetrica("volume", "read_cache_hits"),
+				"number of times the block to be read is found in cache", []string{"volume_name"}),
 		},
-		readCacheMisses: descMétrica{prometheus.GaugeValue,
+		readCacheMisses: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "read_cache_misses"),
-				"Read cache misses", []string{"volume_name"}),
+				NomeMetrica("volume", "read_cache_misses"),
+				"number of times the block to be read is not found in cache", []string{"volume_name"}),
 		},
-		smallDestages: descMétrica{prometheus.GaugeValue,
+		smallDestages: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "small_destages"),
-				"Small destages", []string{"volume_name"}),
+				NomeMetrica("volume", "destage_small_count"),
+				"number of times flush from cache to disk is not a full stripe", []string{"volume_name"}),
 		},
-		fullStripeWriteDestage: descMétrica{prometheus.GaugeValue,
+		fullStripeWriteDestage: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "full_stripe_write_destage"),
-				"Full stripe write destage", []string{"volume_name"}),
+				NomeMetrica("volume", "destage_full_stripe_count"),
+				"number of times flush from cache to disk is a full stripe", []string{"volume_name"}),
 		},
-		readAheadOperations: descMétrica{prometheus.GaugeValue,
+		readAheadOperations: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "read_ahead_operations"),
-				"Read ahead operations", []string{"volume_name"}),
+				NomeMetrica("volume", "read_ahead_operations"),
+				"number of read pre-fetch or anticipatory-read operations", []string{"volume_name"}),
 		},
 		writeCacheSpace: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "write_cache_space"),
-				"Write cache space", []string{"volume_name"}),
+				NomeMetrica("volume", "write_cache_space"),
+				"cache size used on behalf of the volume", []string{"volume_name"}),
 		},
 		writeCachePercent: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume_statistics", "write_cache_percent"),
-				"Write cache percent", []string{"volume_name"}),
-		},
-		resetTime: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "reset_time"),
-				"Reset time in epoch", []string{"volume_name", "reset_time"}),
-		},
-		startSampleTime: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "start_sample_time"),
-				"Start sample time in epoch", []string{"volume_name", "start_sample_time"}),
-		},
-		stopSampleTime: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume_statistics", "stop_sample_time"),
-				"Stop sample time in epoch", []string{"volume_name", "stop_sample_time"}),
+				NomeMetrica("volume", "write_cache_percent"),
+				"percentage of cache used on behalf of the volume", []string{"volume_name"}),
 		},
 		logger: logger,
 	}, nil
@@ -184,8 +155,6 @@ func (v volumeStatistics) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, volume := range v.meSession.volumeStatistics {
-		ch <- v.up.constMetric(1, volume.VolumeName, volume.SerialNumber)
-		ch <- v.bytesPerSecond.constMetric(float64(volume.BytesPerSecondNumeric), volume.VolumeName, volume.BytesPerSecond)
 		ch <- v.numberOfReads.constMetric(float64(volume.NumberOfReads), volume.VolumeName)
 		ch <- v.numberOfWrites.constMetric(float64(volume.NumberOfWrites), volume.VolumeName)
 		ch <- v.dataRead.constMetric(float64(volume.DataReadNumeric), volume.VolumeName)
@@ -195,8 +164,6 @@ func (v volumeStatistics) Update(ch chan<- prometheus.Metric) error {
 		ch <- v.percentTierSas.constMetric(float64(volume.PercentTierSas), volume.VolumeName)
 		ch <- v.percentTierSata.constMetric(float64(volume.PercentTierSata), volume.VolumeName)
 		ch <- v.percentAllocatedRfc.constMetric(float64(volume.PercentAllocatedRfc), volume.VolumeName)
-		ch <- v.pagesAllocPerMinute.constMetric(float64(volume.PagesAllocPerMinute), volume.VolumeName)
-		ch <- v.pagesDeallocPerMinute.constMetric(float64(volume.PagesDeallocPerMinute), volume.VolumeName)
 		ch <- v.sharedPages.constMetric(float64(volume.SharedPages), volume.VolumeName)
 		ch <- v.writeCacheHits.constMetric(float64(volume.WriteCacheHits), volume.VolumeName)
 		ch <- v.writeCacheMisses.constMetric(float64(volume.WriteCacheMisses), volume.VolumeName)
@@ -207,9 +174,6 @@ func (v volumeStatistics) Update(ch chan<- prometheus.Metric) error {
 		ch <- v.readAheadOperations.constMetric(float64(volume.ReadAheadOperations), volume.VolumeName)
 		ch <- v.writeCacheSpace.constMetric(float64(volume.WriteCacheSpace), volume.VolumeName)
 		ch <- v.writeCachePercent.constMetric(float64(volume.WriteCachePercent), volume.VolumeName)
-		ch <- v.resetTime.constMetric(float64(volume.ResetTimeNumeric), volume.VolumeName, volume.ResetTime)
-		ch <- v.startSampleTime.constMetric(float64(volume.StartSampleTimeNumeric), volume.VolumeName, volume.StartSampleTime)
-		ch <- v.stopSampleTime.constMetric(float64(volume.StopSampleTimeNumeric), volume.VolumeName, volume.StopSampleTime)
 	}
 
 	return nil

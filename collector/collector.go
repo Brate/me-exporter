@@ -151,7 +151,7 @@ func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(c.Coletores))
 	errorCh := make(chan error, len(c.Coletores))
 
-	pool := make(chan struct{}, 4) // 4 workers
+	pool := make(chan struct{}, 6) // 6 workers
 	defer close(pool)
 
 	for name, coletor := range c.Coletores {
