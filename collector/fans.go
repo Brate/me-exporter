@@ -3,19 +3,16 @@ package collector
 import (
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
-	h "me_exporter/app/helpers"
 )
 
 type fans struct {
-	//All used name in your labels
-	meSession        *MeMetrics
-	up               descMétrica // descMétrica 1, labels name, location and ExtendedStatus
-	statusSesNumeric descMétrica // Enum, with labels name, StatusSes
-	statusNumeric    descMétrica // Enum, with labels name, Status
-	speed            descMétrica // descMétrica speed, descipiton is speed in RPM, labels name, Speed
-	positionNumeric  descMétrica // Enum, with labels name, Position
-	health           descMétrica // Enum, with labels name, Health, HealthReason and HealthRecommendation
-	logger           log.Logger
+	meSession *MeMetrics
+	up        descMétrica
+	statusSes descMétrica
+	status    descMétrica
+	speed     descMétrica
+	health    descMétrica
+	logger    log.Logger
 }
 
 func init() {
@@ -27,33 +24,28 @@ func NewFansCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		meSession: me,
 		up: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("fan", "fan_up"),
-				"Up", []string{"name", "location", "extended_status"}),
+				NomeMetrica("fan", "up"),
+				"Up", []string{"id", "name", "location"}),
 		},
-		statusSesNumeric: descMétrica{prometheus.GaugeValue,
+		statusSes: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("fan", "status_ses_numeric"),
-				"Status SES", []string{"name", "status_ses"}),
+				NomeMetrica("fan", "status_ses"),
+				"Status SES", []string{"id", "status"}),
 		},
-		statusNumeric: descMétrica{prometheus.GaugeValue,
+		status: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("fan", "status_numeric"),
-				"Status", []string{"name", "status"}),
+				NomeMetrica("fan", "status"),
+				"Status", []string{"id", "status"}),
 		},
 		speed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("fan", "speed"),
-				"Speed in RPM", []string{"name", "speed"}),
-		},
-		positionNumeric: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("fan", "position_numeric"),
-				"Position", []string{"name", "position"}),
+				"Speed in RPM", []string{"id"}),
 		},
 		health: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("fan", "health"),
-				"Health", []string{"name", "health", "health_reason", "health_recommendation"}),
+				"Health", []string{"id", "health"}),
 		},
 		logger: logger,
 	}, nil
@@ -64,18 +56,13 @@ func (f fans) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
-	is := h.IntToString
-
-	//TODO revisar o uso do constMetric que está no enclosure
 
 	for _, fan := range f.meSession.fans {
-		ch <- f.up.constMetric(1, fan.Name, fan.Location, fan.ExtendedStatus)
-		ch <- f.statusSesNumeric.constMetric(float64(fan.StatusSesNumeric), fan.Name, fan.StatusSes)
-		ch <- f.statusNumeric.constMetric(float64(fan.StatusNumeric), fan.Name, fan.Status)
-		//Preciso dessa label fan_Speed? acho que não
-		ch <- f.speed.constMetric(float64(fan.Speed), fan.Name, is(fan.Speed))
-		ch <- f.positionNumeric.constMetric(float64(fan.PositionNumeric), fan.Name, fan.Position)
-		ch <- f.health.constMetric(float64(fan.HealthNumeric), fan.Name, fan.Health, fan.HealthReason, fan.HealthRecommendation)
+		ch <- f.up.constMetric(1, fan.DurableID, fan.Name, fan.Location)
+		ch <- f.status.constMetric(float64(fan.StatusNumeric), fan.DurableID, fan.Status)
+		ch <- f.statusSes.constMetric(float64(fan.StatusSesNumeric), fan.DurableID, fan.StatusSes)
+		ch <- f.speed.constMetric(float64(fan.Speed), fan.DurableID)
+		ch <- f.health.constMetric(float64(fan.HealthNumeric), fan.DurableID, fan.Health)
 	}
 
 	return nil
