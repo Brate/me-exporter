@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"me_exporter/Me"
@@ -204,7 +205,7 @@ func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
 	client := meMetrics.NewClient()
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return errors.Errorf("request error: %s", err)
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -239,6 +240,9 @@ func (meMetrics *MeMetrics) ServiceTag() (err error) {
 
 	url := fmt.Sprintf("%v/show/service-tag-info", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	st, err := Me.NewMe4ServiceTagInfoFrom(body)
 	if err == nil {
@@ -254,6 +258,9 @@ func (meMetrics *MeMetrics) CacheSettings() (err error) {
 	url := fmt.Sprintf("%v/show/cache-parameters", meMetrics.baseUrl)
 
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	cs, err := Me.NewMe4CacheSettingsFrom(body)
 	if err == nil {
@@ -268,6 +275,9 @@ func (meMetrics *MeMetrics) DiskGroupStatistics() (err error) {
 
 	url := fmt.Sprintf("%v/show/disk-group-statistics", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	stats, err := Me.NewMe4DiskGroupStatisticsFrom(body)
 	if err == nil {
@@ -282,6 +292,9 @@ func (meMetrics *MeMetrics) DiskGroups() (err error) {
 
 	url := fmt.Sprintf("%v/show/disk-groups", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	dg, err := Me.NewMe4DiskGroupsFrom(body)
 	if err == nil {
@@ -296,6 +309,9 @@ func (meMetrics *MeMetrics) DiskStatistics() (err error) {
 
 	url := fmt.Sprintf("%v/show/disk-statistics", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	ds, err := Me.NewMe4DiskStatisticsFrom(body)
 	if err == nil {
@@ -310,6 +326,9 @@ func (meMetrics *MeMetrics) Disks() (err error) {
 
 	url := fmt.Sprintf("%v/show/disks", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	disks, err := Me.NewMe4DisksFrom(body)
 	if err == nil {
@@ -324,6 +343,9 @@ func (meMetrics *MeMetrics) Enclosures() (err error) {
 
 	url := fmt.Sprintf("%v/show/enclosures", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	enclosures, err := Me.NewMe4EnclosuresFrom(body)
 	if err == nil {
@@ -338,6 +360,9 @@ func (meMetrics *MeMetrics) ExpanderStatus() (err error) {
 
 	url := fmt.Sprintf("%v/show/expander-status", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	expanders, err := Me.NewMe4ExpanderStatusFrom(body)
 	if err == nil {
@@ -352,6 +377,9 @@ func (meMetrics *MeMetrics) Fans() (err error) {
 
 	url := fmt.Sprintf("%v/show/fans", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	fans, err := Me.NewMe4FansFrom(body)
 	if err == nil {
@@ -366,6 +394,9 @@ func (meMetrics *MeMetrics) Frus() (err error) {
 
 	url := fmt.Sprintf("%v/show/frus", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	frus, err := Me.NewMe4FrusFrom(body)
 	if err == nil {
@@ -380,6 +411,9 @@ func (meMetrics *MeMetrics) Pools() (err error) {
 
 	url := fmt.Sprintf("%v/show/pools", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	// Corrige JSON mal formado:
 	// duas ocorrencias de disk-groups no mesmo objeto
@@ -400,6 +434,9 @@ func (meMetrics *MeMetrics) PoolsStatistics() (err error) {
 
 	url := fmt.Sprintf("%v/show/pool-statistics", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	stats, err := Me.NewMe4PoolStatisticsFrom(body)
 	if err == nil {
@@ -414,6 +451,9 @@ func (meMetrics *MeMetrics) Ports() (err error) {
 
 	url := fmt.Sprintf("%v/show/ports", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	ports, err := Me.NewMe4PortsFrom(body)
 	if err == nil {
@@ -428,6 +468,9 @@ func (meMetrics *MeMetrics) SensorStatus() (err error) {
 
 	url := fmt.Sprintf("%v/show/sensor-status", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	status, err := Me.NewMe4SensorStatusFrom(body)
 	if err == nil {
@@ -442,6 +485,9 @@ func (meMetrics *MeMetrics) ControllerStatistics() (err error) {
 
 	url := fmt.Sprintf("%v/show/controller-statistics/both", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	stats, err := Me.NewMe4ControllerStatisticsFrom(body)
 	if err == nil {
@@ -456,6 +502,9 @@ func (meMetrics *MeMetrics) Volumes() (err error) {
 
 	url := fmt.Sprintf("%v/show/volumes", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	volumes, err := Me.NewMe4VolumesFrom(body)
 	if err == nil {
@@ -470,6 +519,9 @@ func (meMetrics *MeMetrics) VolumeStatistics() (err error) {
 
 	url := fmt.Sprintf("%v/show/volume-statistics", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	stats, err := Me.NewMe4VolumeStatisticsFrom(body)
 	if err == nil {
@@ -484,6 +536,9 @@ func (meMetrics *MeMetrics) TierStatistics() (err error) {
 
 	url := fmt.Sprintf("%v/show/tier-statistics/tier/all", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	stats, err := Me.NewMe4TierStatisticsFrom(body)
 	if err == nil {
@@ -498,6 +553,9 @@ func (meMetrics *MeMetrics) Tiers() (err error) {
 
 	url := fmt.Sprintf("%v/show/tiers/tier/all", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	tiers, err := Me.NewMe4TiersFrom(body)
 	if err == nil {
@@ -512,6 +570,9 @@ func (meMetrics *MeMetrics) UnwritableCache() (err error) {
 
 	url := fmt.Sprintf("%v/show/unwritable-cache", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
 
 	cache, err := Me.NewMe4UnwritableCacheFrom(body)
 	if err == nil {
