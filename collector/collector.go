@@ -401,7 +401,7 @@ func (meMetrics *MeMetrics) PoolsStatistics() (err error) {
 	url := fmt.Sprintf("%v/show/pool-statistics", meMetrics.baseUrl)
 	body, err := meMetrics.ClientDo(url)
 
-	stats, err := Me.NewMe4ShowPoolStatisticsFrom(body)
+	stats, err := Me.NewMe4PoolStatisticsFrom(body)
 	if err == nil {
 		meMetrics.poolStatistics = stats
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 )
@@ -46,7 +47,8 @@ func (ss *httpSensors) GetAndDeserialize(url string) error {
 
 	err = json.Unmarshal(body, ss)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -66,7 +68,8 @@ func NewMe4Sensors(url string) []SensorStatus {
 func (ss *httpSensors) FromJson(body []byte) error {
 	err := json.Unmarshal(body, ss)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -77,7 +80,8 @@ func NewMe4SensorStatusFrom(body []byte) (sti []SensorStatus, err error) {
 	diskGp := &httpSensors{}
 	err = json.Unmarshal(body, diskGp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 

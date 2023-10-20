@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 )
@@ -144,7 +145,8 @@ func NewMe4DiskGroupsFrom(body []byte) (sti []Disk, err error) {
 	hst := &httpDiskGroups{}
 	err = json.Unmarshal(body, hst)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 

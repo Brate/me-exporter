@@ -3,6 +3,7 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 )
@@ -79,7 +80,8 @@ func NewMe4ServiceTagInfo(url string) []ServiceTagInfo {
 	sti := &httpServiceTagInfo{}
 	err := sti.GetAndDeserialize(url)
 	if err != nil {
-		fmt.Printf("Erro ao requisitar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return nil
 	}
 	return sti.ServiceTagInfo

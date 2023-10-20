@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 )
@@ -48,7 +49,8 @@ func (t *httpTiers) GetAndDeserialize(url string) error {
 
 	err = json.Unmarshal(body, t)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -66,7 +68,8 @@ func NewMe4TiersInfo(url string) []Tiers {
 func (t *httpTiers) FromJson(body []byte) error {
 	err := json.Unmarshal(body, t)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -77,7 +80,8 @@ func NewMe4TiersFrom(body []byte) (sti []Tiers, err error) {
 	diskGp := &httpTiers{}
 	err = json.Unmarshal(body, diskGp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 

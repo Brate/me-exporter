@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 	"strings"
@@ -39,7 +40,8 @@ func (hcp *httpCacheParameters) GetAndDeserialize(url string) error {
 
 	err = json.Unmarshal(body, hcp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -59,7 +61,8 @@ func NewMe4CacheParameters(url string) []SystemCacheSettings {
 func (hcp *httpCacheParameters) FromJson(body []byte) error {
 	err := json.Unmarshal(body, hcp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -70,7 +73,8 @@ func NewMe4CacheSettingsFrom(body []byte) (sti []SystemCacheSettings, err error)
 	hcp := &httpCacheParameters{}
 	err = json.Unmarshal(body, hcp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 

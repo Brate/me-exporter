@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 )
@@ -41,7 +42,8 @@ func (ts *httpTierStatistics) GetAndDeserialize(url string) error {
 
 	err = json.Unmarshal(body, ts)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -61,7 +63,8 @@ func NewMe4TierStatistics(url string) []TierStatistics {
 func (dk *httpTierStatistics) FromJson(body []byte) error {
 	err := json.Unmarshal(body, dk)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -72,7 +75,8 @@ func NewMe4TierStatisticsFrom(body []byte) (sti []TierStatistics, err error) {
 	diskGp := &httpTierStatistics{}
 	err = json.Unmarshal(body, diskGp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 )
@@ -72,7 +73,8 @@ func NewMe4Ports(url string) []Ports {
 func (dk *httpPorts) FromJson(body []byte) error {
 	err := json.Unmarshal(body, dk)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
@@ -83,7 +85,8 @@ func NewMe4PortsFrom(body []byte) (sti []Ports, err error) {
 	diskGp := &httpPorts{}
 	err = json.Unmarshal(body, diskGp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 	sti = diskGp.Port

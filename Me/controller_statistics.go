@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -97,7 +98,8 @@ func NewMe4ControllerStatisticsFrom(body []byte) (sti []ControllerStatistics, er
 	diskGp := &httpControllerStatistics{}
 	err = json.Unmarshal(body, diskGp)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return
 	}
 
