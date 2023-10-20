@@ -3,13 +3,15 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
+
 	//"github.com/go-kit/log"
 	//"github.com/go-kit/log/level"
 	"io"
 	"net/http"
 )
 
-type PoolStatistic struct {
+type PoolStatistics struct {
 	ObjectName                       string                 `json:"object-name"`
 	Meta                             string                 `json:"meta"`
 	SampleTime                       string                 `json:"sample-time"`
@@ -35,8 +37,8 @@ type PoolStatistic struct {
 }
 
 type httpPoolStatistics struct {
-	PoolStatistics []PoolStatistic `json:"pool-statistics"`
-	HttpStatus     []Status        `json:"status"`
+	PoolStatistics []PoolStatistics `json:"pool-statistics"`
+	HttpStatus     []Status         `json:"status"`
 }
 
 func (ps *httpPoolStatistics) GetAndDeserialize(url string) error {
@@ -52,18 +54,34 @@ func (ps *httpPoolStatistics) GetAndDeserialize(url string) error {
 
 	err = json.Unmarshal(body, ps)
 	if err != nil {
-		fmt.Printf("Erro ao deserializar %v", err)
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
 		return err
 	}
 
 	return nil
 }
 
-func NewMe4PoolStatistics(url string) []PoolStatistic {
+func NewMe4PoolStatisticsFrom(body []byte) (ps []PoolStatistics, err error) {
+	diskGp := &httpPoolStatistics{}
+	err = json.Unmarshal(body, diskGp)
+	if err != nil {
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
+
+		return
+	}
+
+	ps = diskGp.PoolStatistics
+	return
+}
+
+func NewMe4PoolStatistics(url string) []PoolStatistics {
 	ps := &httpPoolStatistics{}
 	err := ps.GetAndDeserialize(url)
 	if err != nil {
-		fmt.Printf("Erro ao requisitar %v", err)
+		fmt.Printf("Erro ao requisitar %v\n", err)
+		err = errors.Errorf("Request error: %s", err)
 		return nil
 	}
 	return ps.PoolStatistics
