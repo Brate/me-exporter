@@ -151,7 +151,7 @@ func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(c.Coletores))
 	errorCh := make(chan error, len(c.Coletores))
 
-	pool := make(chan struct{}, 6) // 6 workers
+	pool := make(chan struct{}, 10) // 10 workers
 	defer close(pool)
 
 	for name, coletor := range c.Coletores {
@@ -169,7 +169,7 @@ func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 
 	hasErrors := false
 	for err := range errorCh {
-		_ = level.Error(c.logger).Log("msg", "Erro ao executar coletor", "error", err)
+		_ = level.Error(c.logger).Log("msg", "Erro ao executar coletor", "error", err, "callers")
 		hasErrors = true
 	}
 
@@ -593,9 +593,9 @@ func (meMetrics *MeMetrics) Me4Request(url string) (req *http.Request, err error
 }
 func (meMetrics *MeMetrics) NewClient() (client *http.Client) {
 	client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 8 * time.Second,
 		Transport: &http.Transport{
-			IdleConnTimeout: 5 * time.Second,
+			IdleConnTimeout: 2 * time.Second,
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
