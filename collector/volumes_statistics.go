@@ -6,21 +6,16 @@ import (
 )
 
 type volumeStatistics struct {
-	//All labels volume-name
-	meSession *MeMetrics
-	//up        descMétrica
-	//bytesPerSecond         descMétrica
-	numberOfReads       descMétrica
-	numberOfWrites      descMétrica
-	dataRead            descMétrica
-	dataWritten         descMétrica
-	allocatedPages      descMétrica
-	percentTierSsd      descMétrica
-	percentTierSas      descMétrica
-	percentTierSata     descMétrica
-	percentAllocatedRfc descMétrica
-	//pagesAllocPerMinute    descMétrica
-	//pagesDeallocPerMinute  descMétrica
+	meSession              *MeMetrics
+	numberOfReads          descMétrica
+	numberOfWrites         descMétrica
+	dataRead               descMétrica
+	dataWritten            descMétrica
+	allocatedPages         descMétrica
+	percentTierSsd         descMétrica
+	percentTierSas         descMétrica
+	percentTierSata        descMétrica
+	percentAllocatedRfc    descMétrica
 	sharedPages            descMétrica
 	writeCacheHits         descMétrica
 	writeCacheMisses       descMétrica
@@ -31,10 +26,7 @@ type volumeStatistics struct {
 	readAheadOperations    descMétrica
 	writeCacheSpace        descMétrica
 	writeCachePercent      descMétrica
-	//resetTime              descMétrica
-	//startSampleTime        descMétrica
-	//stopSampleTime         descMétrica
-	logger log.Logger
+	logger                 log.Logger
 }
 
 func init() {
@@ -44,12 +36,6 @@ func init() {
 func NewVolumeStatisticsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 	return &volumeStatistics{
 		meSession: me,
-		// TODO: Mover para NewVolume
-		//up: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("volume_statistics", "up"),
-		//		"Up", []string{"volume_name", "serial_number"}),
-		//},
 		numberOfReads: descMétrica{prometheus.CounterValue,
 			NewDescritor(
 				NomeMetrica("volume", "read_count"),
