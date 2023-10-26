@@ -21,17 +21,19 @@ type volumes struct {
 	volumeClass               descMétrica
 	tierAffinity              descMétrica
 	snapshotRetentionPriority descMétrica
-	volumeQualifier           descMétrica
-	blocks                    descMétrica
-	progress                  descMétrica
-	largeVirtualExtents       descMétrica
-	raidtype                  descMétrica
-	csCopyDest                descMétrica
-	csCopySrc                 descMétrica
-	csPrimary                 descMétrica
-	csSecondary               descMétrica
-	health                    descMétrica
-	logger                    log.Logger
+	//volumeQualifier           descMétrica
+	blocks    descMétrica
+	blockSize descMétrica
+	//progress            descMétrica
+	//largeVirtualExtents descMétrica
+	raidtype descMétrica
+	//csCopyDest          descMétrica
+	//csCopySrc           descMétrica
+	//csPrimary           descMétrica
+	//csSecondary         descMétrica
+	health descMétrica
+
+	logger log.Logger
 }
 
 func init() {
@@ -44,122 +46,129 @@ func NewVolumesCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		up: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("volume", "up"),
-				"Volume is up", []string{"volume name", "virtual disk name", "storage pool name", "volume name", "snapshot", "wwn", "container name", "container serial", "virtual disk serial", "capabilities", "volume parent", "snap pool", "cs replication role", "volume group", "group key"}),
+				"Volume literals", []string{"name", "wwn", "virtual_disk",
+					"snapshot", "volume_parent", "snap_pool",
+					"volume_group", "vg_key"}),
 		},
 		size: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "size"),
-				"Volume size in GB", []string{"volume name", "size"}),
+				NomeMetrica("volume", "size_gigabytes"),
+				"Volume size in GB", []string{"name"}),
 		},
 		totalSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "total size"),
-				"Volume total size in GB", []string{"volume name", "total size"}),
+				NomeMetrica("volume", "total_size_gigabytes"),
+				"Volume total size in GB", []string{"name"}),
 		},
 		allocatedSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "allocated size"),
-				"Volume allocated size in GB", []string{"volume name", "allocated size"}),
+				NomeMetrica("volume", "allocated_size_gigabytes"),
+				"Volume allocated size in GB", []string{"name"}),
 		},
 		storageType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "storage type"),
-				"Volume storage type", []string{"volume name", "storage type"}),
+				NomeMetrica("volume", "storage_type"),
+				"Volume storage type", []string{"name", "type"}),
 		},
 		preferredOwner: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "preferred owner"),
-				"Volume preferred owner", []string{"volume name", "preferred owner"}),
+				NomeMetrica("volume", "preferred_owner"),
+				"Volume preferred owner", []string{"name", "preferred"}),
 		},
 		owner: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("volume", "owner"),
-				"Volume owner", []string{"volume name", "owner"}),
+				"Volume owner", []string{"name", "owner"}),
 		},
 		writePolicy: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "write policy"),
-				"Volume write policy", []string{"volume name", "write policy"}),
+				NomeMetrica("volume", "write_policy"),
+				"Volume write policy", []string{"name", "policy"}),
 		},
 		cacheOptimization: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "cache optimization"),
-				"Volume cache optimization", []string{"volume name", "cache optimization"}),
+				NomeMetrica("volume", "cache_optimization"),
+				"Volume cache optimization", []string{"name", "optimization"}),
 		},
 		readAheadSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "read ahead size"),
-				"Volume read ahead size", []string{"volume name", "read ahead size"}),
+				NomeMetrica("volume", "read_ahead_size_bytes"),
+				"Volume read ahead size", []string{"name", "size"}),
 		},
 		volumeType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "volume type"),
-				"Volume type", []string{"volume name", "volume type"}),
+				NomeMetrica("volume", "type"),
+				"Volume type", []string{"name", "type"}),
 		},
 		volumeClass: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "volume class"),
-				"Volume class", []string{"volume name", "volume class"}),
+				NomeMetrica("volume", "class"),
+				"Volume class", []string{"name", "class"}),
 		},
 		tierAffinity: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "tier affinity"),
-				"Volume tier affinity", []string{"volume name", "tier affinity"}),
+				NomeMetrica("volume", "tier_affinity"),
+				"Volume tier affinity", []string{"name", "affinity"}),
 		},
 		snapshotRetentionPriority: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "snapshot retention priority"),
-				"Volume snapshot retention priority", []string{"volume name", "snapshot retention priority"}),
+				NomeMetrica("volume", "snapshot_retention_priority"),
+				"Volume snapshot retention priority", []string{"name", "priority"}),
 		},
-		volumeQualifier: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume", "volume qualifier"),
-				"Volume qualifier", []string{"volume name", "volume qualifier"}),
-		},
+		//volumeQualifier: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "volume qualifier"),
+		//		"Volume qualifier", []string{"name", "volume qualifier"}),
+		//},
 		blocks: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("volume", "blocks"),
-				"Volume blocks", []string{"volume name"}),
+				"Volume blocks", []string{"name"}),
 		},
-		progress: descMétrica{prometheus.GaugeValue,
+		blockSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "progress"),
-				"Volume progress", []string{"volume name", "progress"}),
+				NomeMetrica("volume", "block_size_bytes"),
+				"Volume blocks", []string{"name"}),
 		},
-		largeVirtualExtents: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume", "large virtual extents"),
-				"Volume large virtual extents", []string{"volume name", "large virtual extents"}),
-		},
+		//progress: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "progress"),
+		//		"Volume progress", []string{"name", "progress"}),
+		//},
+		//largeVirtualExtents: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "large virtual extents"),
+		//		"Volume large virtual extents", []string{"name", "large virtual extents"}),
+		//},
 		raidtype: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "raidType"),
-				"Volume raid type", []string{"volume name", "raidType"}),
+				NomeMetrica("volume", "raid_type"),
+				"Volume raid type", []string{"name", "type"}),
 		},
-		csCopyDest: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume", "cs copy dest"),
-				"Volume cs copy dest", []string{"volume name", "cs copy dest"}),
-		},
-		csCopySrc: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume", "cs copy src"),
-				"Volume cs copy src", []string{"volume name", "cs copy src"}),
-		},
-		csPrimary: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume", "cs primary"),
-				"Volume cs primary", []string{"volume name", "cs primary"}),
-		},
-		csSecondary: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("volume", "cs secondary"),
-				"Volume cs secondary", []string{"volume name", "cs secondary"}),
-		},
+		//csCopyDest: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "cs copy dest"),
+		//		"Volume cs copy dest", []string{"name", "cs copy dest"}),
+		//},
+		//csCopySrc: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "cs copy src"),
+		//		"Volume cs copy src", []string{"name", "cs copy src"}),
+		//},
+		//csPrimary: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "cs primary"),
+		//		"Volume cs primary", []string{"name", "cs primary"}),
+		//},
+		//csSecondary: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("volume", "cs secondary"),
+		//		"Volume cs secondary", []string{"name", "cs secondary"}),
+		//},
 		health: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("volume", "health"),
-				"Volume health", []string{"volume name", "health", "health reason"}),
+				"Volume health", []string{"name", "health", "reason"}),
 		},
 		logger: logger,
 	}, nil
@@ -170,31 +179,34 @@ func (v volumes) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	for _, volume := range v.meSession.volumes {
-		ch <- v.up.constMetric(1, volume.VolumeName, volume.VirtualDiskName, volume.StoragePoolName, volume.VolumeName, volume.Snapshot, volume.Wwn, volume.ContainerName, volume.ContainerSerial, volume.VirtualDiskSerial, volume.Capabilities, volume.VolumeParent, volume.SnapPool, volume.CsReplicationRole, volume.VolumeGroup, volume.GroupKey)
-		ch <- v.size.constMetric(float64(volume.SizeNumeric), volume.VolumeName, volume.Size)
-		ch <- v.totalSize.constMetric(float64(volume.TotalSizeNumeric), volume.VolumeName, volume.TotalSize)
-		ch <- v.allocatedSize.constMetric(float64(volume.AllocatedSizeNumeric), volume.VolumeName, volume.AllocatedSize)
-		ch <- v.storageType.constMetric(float64(volume.StorageTypeNumeric), volume.VolumeName, volume.StorageType)
-		ch <- v.preferredOwner.constMetric(float64(volume.PreferredOwnerNumeric), volume.VolumeName, volume.PreferredOwner)
-		ch <- v.owner.constMetric(float64(volume.OwnerNumeric), volume.VolumeName, volume.Owner)
-		ch <- v.writePolicy.constMetric(float64(volume.WritePolicyNumeric), volume.VolumeName, volume.WritePolicy)
-		ch <- v.cacheOptimization.constMetric(float64(volume.CacheOptimizationNumeric), volume.VolumeName, volume.CacheOptimization)
-		ch <- v.readAheadSize.constMetric(float64(volume.ReadAheadSizeNumeric), volume.VolumeName, volume.ReadAheadSize)
-		ch <- v.volumeType.constMetric(float64(volume.VolumeTypeNumeric), volume.VolumeName, volume.VolumeType)
-		ch <- v.volumeClass.constMetric(float64(volume.VolumeClassNumeric), volume.VolumeName, volume.VolumeClass)
-		ch <- v.tierAffinity.constMetric(float64(volume.TierAffinityNumeric), volume.VolumeName, volume.TierAffinity)
-		ch <- v.snapshotRetentionPriority.constMetric(float64(volume.SnapshotRetentionPriorityNumeric), volume.VolumeName, volume.SnapshotRetentionPriority)
-		ch <- v.volumeQualifier.constMetric(float64(volume.VolumeQualifierNumeric), volume.VolumeName, volume.VolumeQualifier)
-		ch <- v.blocks.constMetric(float64(volume.Blocks), volume.VolumeName)
-		ch <- v.progress.constMetric(float64(volume.ProgressNumeric), volume.VolumeName, volume.Progress)
-		ch <- v.largeVirtualExtents.constMetric(float64(volume.LargeVirtualExtentsNumeric), volume.VolumeName, volume.LargeVirtualExtents)
-		ch <- v.raidtype.constMetric(float64(volume.RaidtypeNumeric), volume.VolumeName, volume.Raidtype)
-		ch <- v.csCopyDest.constMetric(float64(volume.CsCopyDestNumeric), volume.VolumeName, volume.CsCopyDest)
-		ch <- v.csCopySrc.constMetric(float64(volume.CsCopySrcNumeric), volume.VolumeName, volume.CsCopySrc)
-		ch <- v.csPrimary.constMetric(float64(volume.CsPrimaryNumeric), volume.VolumeName, volume.CsPrimary)
-		ch <- v.csSecondary.constMetric(float64(volume.CsSecondaryNumeric), volume.VolumeName, volume.CsSecondary)
-		ch <- v.health.constMetric(float64(volume.HealthNumeric), volume.VolumeName, volume.Health, volume.HealthReason)
+	for _, vol := range v.meSession.volumes {
+		ch <- v.up.constMetric(1, vol.VolumeName, vol.Wwn, vol.VirtualDiskName,
+			vol.Snapshot, vol.VolumeParent, vol.SnapPool,
+			vol.VolumeGroup, vol.GroupKey)
+		ch <- v.size.constMetric(float64(vol.SizeNumeric), vol.VolumeName)
+		ch <- v.totalSize.constMetric(float64(vol.TotalSizeNumeric), vol.VolumeName)
+		ch <- v.allocatedSize.constMetric(float64(vol.AllocatedSizeNumeric), vol.VolumeName)
+		ch <- v.storageType.constMetric(float64(vol.StorageTypeNumeric), vol.VolumeName, vol.StorageType)
+		ch <- v.preferredOwner.constMetric(float64(vol.PreferredOwnerNumeric), vol.VolumeName, vol.PreferredOwner)
+		ch <- v.owner.constMetric(float64(vol.OwnerNumeric), vol.VolumeName, vol.Owner)
+		ch <- v.writePolicy.constMetric(float64(vol.WritePolicyNumeric), vol.VolumeName, vol.WritePolicy)
+		ch <- v.cacheOptimization.constMetric(float64(vol.CacheOptimizationNumeric), vol.VolumeName, vol.CacheOptimization)
+		ch <- v.readAheadSize.constMetric(float64(vol.ReadAheadSizeNumeric), vol.VolumeName, vol.ReadAheadSize)
+		ch <- v.volumeType.constMetric(float64(vol.VolumeTypeNumeric), vol.VolumeName, vol.VolumeType)
+		ch <- v.volumeClass.constMetric(float64(vol.VolumeClassNumeric), vol.VolumeName, vol.VolumeClass)
+		ch <- v.tierAffinity.constMetric(float64(vol.TierAffinityNumeric), vol.VolumeName, vol.TierAffinity)
+		ch <- v.snapshotRetentionPriority.constMetric(float64(vol.SnapshotRetentionPriorityNumeric), vol.VolumeName, vol.SnapshotRetentionPriority)
+		//ch <- v.volumeQualifier.constMetric(float64(vol.VolumeQualifierNumeric), vol.VolumeName, vol.VolumeQualifier)
+		ch <- v.blocks.constMetric(float64(vol.Blocks), vol.VolumeName)
+		ch <- v.blockSize.constMetric(float64(vol.Blocksize), vol.VolumeName)
+		//ch <- v.progress.constMetric(float64(vol.ProgressNumeric), vol.VolumeName, vol.Progress)
+		//ch <- v.largeVirtualExtents.constMetric(float64(vol.LargeVirtualExtentsNumeric), vol.VolumeName, vol.LargeVirtualExtents)
+		ch <- v.raidtype.constMetric(float64(vol.RaidtypeNumeric), vol.VolumeName, vol.Raidtype)
+		//ch <- v.csCopyDest.constMetric(float64(vol.CsCopyDestNumeric), vol.VolumeName, vol.CsCopyDest)
+		//ch <- v.csCopySrc.constMetric(float64(vol.CsCopySrcNumeric), vol.VolumeName, vol.CsCopySrc)
+		//ch <- v.csPrimary.constMetric(float64(vol.CsPrimaryNumeric), vol.VolumeName, vol.CsPrimary)
+		//ch <- v.csSecondary.constMetric(float64(vol.CsSecondaryNumeric), vol.VolumeName, vol.CsSecondary)
+		ch <- v.health.constMetric(float64(vol.HealthNumeric), vol.VolumeName, vol.Health, vol.HealthReason)
 	}
 
 	return nil
