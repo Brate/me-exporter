@@ -6,9 +6,9 @@ import (
 )
 
 type tierStatistics struct {
-	meSession              *MeMetrics
-	up                     descMétrica
-	tierNumeric            descMétrica
+	meSession *MeMetrics
+	up        descMétrica
+	//tierNumeric            descMétrica //Tem no tier
 	pagesAllocPerMinute    descMétrica
 	pagesDeallocPerMinute  descMétrica
 	pagesReclaimed         descMétrica
@@ -28,11 +28,11 @@ func NewTierStatisticsCollector(me *MeMetrics, logger log.Logger) (Coletor, erro
 				NomeMetrica("tier_statistics", "up"),
 				"Was the last query of tier_statistics successful.", []string{"pool", "serial_number"}),
 		},
-		tierNumeric: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("tier_statistics", "tier_numeric"),
-				"Tier numeric", []string{"pool", "num_tier"}),
-		},
+		//tierNumeric: descMétrica{prometheus.GaugeValue,
+		//	NewDescritor(
+		//		NomeMetrica("tier_statistics", "tier_numeric"),
+		//		"Tier numeric", []string{"pool", "num_tier"}),
+		//},
 		pagesAllocPerMinute: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("tier_statistics", "pages_alloc_per_minute"),
@@ -64,7 +64,7 @@ func (t tierStatistics) Update(ch chan<- prometheus.Metric) error {
 
 	for _, tierS := range t.meSession.tierStatistics {
 		ch <- t.up.constMetric(1, tierS.Pool, tierS.Tier, tierS.SerialNumber)
-		ch <- t.tierNumeric.constMetric(float64(tierS.TierNumeric), tierS.Pool, tierS.Tier)
+		//ch <- t.tierNumeric.constMetric(float64(tierS.TierNumeric), tierS.Pool, tierS.Tier)
 		ch <- t.pagesAllocPerMinute.constMetric(float64(tierS.PagesAllocPerMinute), tierS.Pool)
 		ch <- t.pagesDeallocPerMinute.constMetric(float64(tierS.PagesDeallocPerMinute), tierS.Pool)
 		ch <- t.pagesReclaimed.constMetric(float64(tierS.PagesReclaimed), tierS.Pool)
