@@ -20,11 +20,6 @@ type tier struct {
 	logger         log.Logger
 }
 
-func (t tier) Update(ch chan<- prometheus.Metric) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func init() {
 	registerCollector("tier", NewTierCollector)
 }
@@ -35,7 +30,7 @@ func NewTierCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		up: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("tier", "up"),
-				"Was the last query of tier successful.", []string{"pool"}),
+				"Was the last query of tier successful.", []string{"pool", "serial_number"}),
 		},
 		tier: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
@@ -79,4 +74,24 @@ func NewTierCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		logger: logger,
 	}, nil
+}
+
+func (t tier) Update(ch chan<- prometheus.Metric) error {
+	if err := t.meSession.Tiers(); err != nil {
+		return err
+	}
+
+	for _, tier := range t.meSession.tiers {
+		ch <- t.up.constMetric(1, tier.Pool, tier.SerialNumber)
+		ch <- t.tier.constMetric(float64(tier.TierNumeric), tier.Pool, tier.Tier)
+		ch <- t.poolPercentage.constMetric(float64(tier.PoolPercentage), tier.Pool)
+		ch <- t.diskcount.constMetric(float64(tier.Diskcount), tier.Pool)
+		ch <- t.rawSize.constMetric(float64(tier.RawSizeNumeric), tier.Pool)
+		ch <- t.totalSize.constMetric(float64(tier.TotalSizeNumeric), tier.Pool)
+		ch <- t.allocatedSize.constMetric(float64(tier.AllocatedSizeNumeric), tier.Pool)
+		ch <- t.availableSize.constMetric(float64(tier.AvailableSizeNumeric), tier.Pool)
+		ch <- t.affinitySize.constMetric(float64(tier.AffinitySizeNumeric), tier.Pool)
+	}
+
+	return nil
 }
