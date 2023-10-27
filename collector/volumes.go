@@ -57,8 +57,8 @@ func NewVolumesCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		totalSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("volume", "total_size_gigabytes"),
-				"Volume total size in GB", []string{"name"}),
+				NomeMetrica("volume", "total_size_blocks"),
+				"Volume total size in blocks", []string{"name"}),
 		},
 		allocatedSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(

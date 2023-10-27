@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/go-kit/log/level"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/common/promlog"
@@ -35,12 +37,11 @@ func main() {
 
 	logger := promlog.New(&promlog.Config{})
 	controller := app.NewMetricsController(logger)
-	//col, _ := collector.NewMECollectors(logger)
-	//prometheus.MustRegister(col)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/metrics", controller.Handler).Methods(http.MethodGet)
-	err := http.ListenAndServe(":10005", router)
+	_ = level.Info(logger).Log("msg", fmt.Sprintf("Listening on %s", *config.ListenAddress))
+	err := http.ListenAndServe(*config.ListenAddress, router)
 	if err != nil {
 		_ = level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 		return
