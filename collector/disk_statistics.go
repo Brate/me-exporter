@@ -6,19 +6,15 @@ import (
 )
 
 type diskStatistics struct {
-	meSession    *MeMetrics
-	powerOnHours descMétrica
-	//bytesPerSecond      descMétrica
-	readCount           descMétrica
-	writeCount          descMétrica
-	dataRead            descMétrica
-	dataWritten         descMétrica
-	lifetimeDataRead    descMétrica
-	lifetimeDataWritten descMétrica
-	queueDepth          descMétrica
-	//resetTime              descMétrica
-	//startSampleTime        descMétrica
-	//stopSampleTime         descMétrica
+	meSession              *MeMetrics
+	powerOnHours           descMétrica
+	readCount              descMétrica
+	writeCount             descMétrica
+	dataRead               descMétrica
+	dataWritten            descMétrica
+	lifetimeDataRead       descMétrica
+	lifetimeDataWritten    descMétrica
+	queueDepth             descMétrica
 	smartCount             descMétrica
 	ioTimeoutCount         descMétrica
 	noResponseCount        descMétrica
@@ -42,11 +38,6 @@ func NewDiskStatistics(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("disk_statistics", "power_on_hours"),
 				"Power on hours of the disk", []string{"disk"}),
 		},
-		//bytesPerSecond: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("disk_statistics", "bytes_per_second"),
-		//		"Bytes per second of the disk", []string{"disk"}),
-		//},
 		readCount: descMétrica{prometheus.CounterValue,
 			NewDescritor(
 				NomeMetrica("disk_statistics", "read_count"),
@@ -82,21 +73,7 @@ func NewDiskStatistics(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("disk_statistics", "queue_depth"),
 				"Queue depth of the disk", []string{"disk"}),
 		},
-		//resetTime: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("disk_statistics", "reset_time"),
-		//		"Reset time of the disk", []string{"disk"}),
-		//},
-		//startSampleTime: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("disk_statistics", "start_sample_time"),
-		//		"Start sample time of the disk", []string{"disk"}),
-		//},
-		//stopSampleTime: descMétrica{prometheus.GaugeValue,
-		//	NewDescritor(
-		//		NomeMetrica("disk_statistics", "stop_sample_time"),
-		//		"Stop sample time of the disk", []string{"disk"}),
-		//},
+
 		smartCount: descMétrica{prometheus.CounterValue,
 			NewDescritor(
 				NomeMetrica("disk_statistics", "smart_count"),
@@ -148,7 +125,6 @@ func (ds diskStatistics) Update(ch chan<- prometheus.Metric) error {
 
 	for _, disk := range ds.meSession.diskStatistic {
 		ch <- prometheus.MustNewConstMetric(ds.powerOnHours.desc, ds.powerOnHours.tipo, float64(disk.PowerOnHours), disk.Location)
-		//ch <- prometheus.MustNewConstMetric(ds.bytesPerSecond.desc, ds.bytesPerSecond.tipo, float64(disk.BytesPerSecondNumeric), disk.Location)
 		ch <- prometheus.MustNewConstMetric(ds.readCount.desc, ds.readCount.tipo, float64(disk.NumberOfReads), disk.Location)
 		ch <- prometheus.MustNewConstMetric(ds.writeCount.desc, ds.writeCount.tipo, float64(disk.NumberOfWrites), disk.Location)
 		ch <- prometheus.MustNewConstMetric(ds.dataRead.desc, ds.dataRead.tipo, float64(disk.DataReadNumeric), disk.Location)
@@ -156,9 +132,6 @@ func (ds diskStatistics) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(ds.lifetimeDataRead.desc, ds.lifetimeDataRead.tipo, float64(disk.LifetimeDataReadNumeric), disk.Location)
 		ch <- prometheus.MustNewConstMetric(ds.lifetimeDataWritten.desc, ds.lifetimeDataWritten.tipo, float64(disk.LifetimeDataWrittenNumeric), disk.Location)
 		ch <- prometheus.MustNewConstMetric(ds.queueDepth.desc, ds.queueDepth.tipo, float64(disk.QueueDepth), disk.Location)
-		//ch <- prometheus.MustNewConstMetric(ds.resetTime.desc, ds.resetTime.tipo, float64(disk.ResetTimeNumeric), disk.Location)
-		//ch <- prometheus.MustNewConstMetric(ds.startSampleTime.desc, ds.startSampleTime.tipo, float64(disk.StartSampleTimeNumeric), disk.Location)
-		//ch <- prometheus.MustNewConstMetric(ds.stopSampleTime.desc, ds.stopSampleTime.tipo, float64(disk.StopSampleTimeNumeric), disk.Location)
 		ch <- prometheus.MustNewConstMetric(ds.smartCount.desc, ds.smartCount.tipo, float64(disk.SmartCount1), disk.Location, "1")
 		ch <- prometheus.MustNewConstMetric(ds.smartCount.desc, ds.smartCount.tipo, float64(disk.SmartCount2), disk.Location, "2")
 		ch <- prometheus.MustNewConstMetric(ds.ioTimeoutCount.desc, ds.ioTimeoutCount.tipo, float64(disk.IoTimeoutCount1), disk.Location, "1")
