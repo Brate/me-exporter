@@ -3,6 +3,8 @@ package Me
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
+
 	//"github.com/go-kit/log"
 	//"github.com/go-kit/log/level"
 	"io"
@@ -43,4 +45,15 @@ func NewMe4PortStatistics(url string) []HostPortStatistics {
 	return ps.HostPortStatistics
 }
 
-// TODO: Implementar NewMe4PortStatisticsFrom
+func NewMe4PortStatisticsFrom(body []byte) (portS []HostPortStatistics, err error) {
+	portSta := &httpPortStatistics{}
+	err = json.Unmarshal(body, portSta)
+	if err != nil {
+		fmt.Printf("Erro ao deserializar %v\n", err)
+		err = errors.Errorf("Unmarshal error: %s", err)
+		return
+	}
+
+	portS = portSta.HostPortStatistics
+	return
+}
