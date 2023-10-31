@@ -75,6 +75,7 @@ type MeMetrics struct {
 	poolStatistics       []Me.PoolStatistics
 	serviceTag           []Me.ServiceTagInfo
 	ports                []Me.Ports
+	portStatistics       []Me.HostPortStatistics
 	sensorStatus         []Me.SensorStatus
 	volumes              []Me.Volumes
 	volumeStatistics     []Me.VolumeStatistics
@@ -490,6 +491,23 @@ func (meMetrics *MeMetrics) Ports() (err error) {
 	ports, err := Me.NewMe4PortsFrom(body)
 	if err == nil {
 		meMetrics.ports = ports
+	}
+	return
+}
+func (meMetrics *MeMetrics) PortStatistics() (err error) {
+	if meMetrics.sessionKey == "" {
+		return fmt.Errorf("invalid session")
+	}
+
+	url := fmt.Sprintf("%v/show/host-port-statistics", meMetrics.baseUrl)
+	body, err := meMetrics.ClientDo(url)
+	if err != nil {
+		return errors.Errorf("request error: %s", err)
+	}
+
+	portStats, err := Me.NewMe4PortStatisticsFrom(body)
+	if err == nil {
+		meMetrics.portStatistics = portStats
 	}
 	return
 }
