@@ -6,12 +6,12 @@ import (
 )
 
 type tier struct {
-	// All labels have pool
-	meSession      *MeMetrics
-	up             descMétrica // desMétrica is 1, and your labels is pool and serial_number
+	meSession *MeMetrics
+
+	up             descMétrica
 	tier           descMétrica
 	poolPercentage descMétrica
-	diskcount      descMétrica
+	diskCount      descMétrica
 	rawSize        descMétrica
 	totalSize      descMétrica
 	allocatedSize  descMétrica
@@ -30,47 +30,47 @@ func NewTierCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		up: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("tier", "up"),
-				"Was the last query of tier successful.", []string{"pool", "serial_number"}),
+				"Was the last query of tier successful.", []string{"pool", "tier", "serial_number"}),
 		},
 		tier: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "tier_numeric"),
-				"Tier numeric", []string{"pool", "num_tier"}),
+				NomeMetrica("tier", "tier"),
+				"Tier numeric", []string{"pool", "tier"}),
 		},
 		poolPercentage: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("tier", "pool_percentage"),
-				"Pool percentage", []string{"pool"}),
+				"Pool percentage", []string{"pool", "tier"}),
 		},
-		diskcount: descMétrica{prometheus.GaugeValue,
+		diskCount: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "diskcount"),
-				"Diskcount", []string{"pool"}),
+				NomeMetrica("tier", "diskCount"),
+				"Diskcount", []string{"pool", "tier"}),
 		},
 		rawSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "raw_size_numeric"),
-				"Raw size in blocks", []string{"pool"}),
+				NomeMetrica("tier", "raw_size_blocks"),
+				"Raw size in blocks", []string{"pool", "tier"}),
 		},
 		totalSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "total_size_numeric"),
-				"Total size in blocks", []string{"pool"}),
+				NomeMetrica("tier", "total_size"),
+				"Total size in blocks", []string{"pool", "tier"}),
 		},
 		allocatedSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "allocated_size_numeric"),
-				"Allocated size in blocks", []string{"pool"}),
+				NomeMetrica("tier", "allocated_size"),
+				"Allocated size in blocks", []string{"pool", "tier"}),
 		},
 		availableSize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "available_size_numeric"),
-				"Available size in blocks", []string{"pool"}),
+				NomeMetrica("tier", "available_size"),
+				"Available size in blocks", []string{"pool", "tier"}),
 		},
 		affinitySize: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("tier", "affinity_size_numeric"),
-				"Affinity size in Bytes", []string{"pool"}),
+				NomeMetrica("tier", "affinity_size"),
+				"Affinity size in Bytes", []string{"pool", "tier"}),
 		},
 		logger: logger,
 	}, nil
@@ -82,15 +82,15 @@ func (t tier) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, tier := range t.meSession.tiers {
-		ch <- t.up.constMetric(1, tier.Pool, tier.SerialNumber)
+		ch <- t.up.constMetric(1, tier.Pool, tier.Tier, tier.SerialNumber)
 		ch <- t.tier.constMetric(float64(tier.TierNumeric), tier.Pool, tier.Tier)
-		ch <- t.poolPercentage.constMetric(float64(tier.PoolPercentage), tier.Pool)
-		ch <- t.diskcount.constMetric(float64(tier.Diskcount), tier.Pool)
-		ch <- t.rawSize.constMetric(float64(tier.RawSizeNumeric), tier.Pool)
-		ch <- t.totalSize.constMetric(float64(tier.TotalSizeNumeric), tier.Pool)
-		ch <- t.allocatedSize.constMetric(float64(tier.AllocatedSizeNumeric), tier.Pool)
-		ch <- t.availableSize.constMetric(float64(tier.AvailableSizeNumeric), tier.Pool)
-		ch <- t.affinitySize.constMetric(float64(tier.AffinitySizeNumeric), tier.Pool)
+		ch <- t.poolPercentage.constMetric(float64(tier.PoolPercentage), tier.Pool, tier.Tier)
+		ch <- t.diskCount.constMetric(float64(tier.Diskcount), tier.Pool, tier.Tier)
+		ch <- t.rawSize.constMetric(float64(tier.RawSizeNumeric), tier.Pool, tier.Tier)
+		ch <- t.totalSize.constMetric(float64(tier.TotalSizeNumeric), tier.Pool, tier.Tier)
+		ch <- t.allocatedSize.constMetric(float64(tier.AllocatedSizeNumeric), tier.Pool, tier.Tier)
+		ch <- t.availableSize.constMetric(float64(tier.AvailableSizeNumeric), tier.Pool, tier.Tier)
+		ch <- t.affinitySize.constMetric(float64(tier.AffinitySizeNumeric), tier.Pool, tier.Tier)
 	}
 
 	return nil

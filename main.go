@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/go-kit/log/level"
 	"github.com/gorilla/mux"

@@ -128,7 +128,7 @@ func NewDiskGroupsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		diskcount: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("disk_groups", "diskcount"),
+				NomeMetrica("disk_groups", "diskCount"),
 				"Disk count of the disk group", []string{"disk_group"}),
 		},
 		sparecount: descMétrica{prometheus.GaugeValue,

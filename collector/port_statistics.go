@@ -6,9 +6,8 @@ import (
 )
 
 type portStatistics struct {
-	//All metrics have durable id in your metrics
-	meSession       *MeMetrics
-	bytesPerSecond  descMétrica
+	meSession *MeMetrics
+
 	numberOfReads   descMétrica
 	numberOfWrites  descMétrica
 	dataRead        descMétrica
@@ -16,10 +15,8 @@ type portStatistics struct {
 	avgRspTime      descMétrica
 	avgReadRspTime  descMétrica
 	avgWriteRspTime descMétrica
-	resetTime       descMétrica
-	startSampleTime descMétrica
-	stopSampleTime  descMétrica
-	logger          log.Logger
+
+	logger log.Logger
 }
 
 func init() {
@@ -29,60 +26,41 @@ func init() {
 func NewPortStatisticsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 	return &portStatistics{
 		meSession: me,
-		bytesPerSecond: descMétrica{prometheus.GaugeValue,
+
+		numberOfReads: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "bytes_per_second"),
-				"Bytes per second on the port", []string{"durableID"}),
+				NomeMetrica("port", "read_count"),
+				"Number of reads on the port", []string{"id"}),
 		},
-		numberOfReads: descMétrica{prometheus.GaugeValue,
+		numberOfWrites: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "number_of_reads"),
-				"Number of reads on the port", []string{"durableID"}),
+				NomeMetrica("port", "write_count"),
+				"Number of writes on the port", []string{"id"}),
 		},
-		numberOfWrites: descMétrica{prometheus.GaugeValue,
+		dataRead: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "number_of_writes"),
-				"Number of writes on the port", []string{"durableID"}),
+				NomeMetrica("port", "data_read_bytes"),
+				"Data read on the port", []string{"id"}),
 		},
-		dataRead: descMétrica{prometheus.GaugeValue,
+		dataWritten: descMétrica{prometheus.CounterValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "data_read"),
-				"Data read on the port", []string{"durableID"}),
-		},
-		dataWritten: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("port_statistics", "data_written"),
-				"Data written on the port", []string{"durableID"}),
+				NomeMetrica("port", "data_written_bytes"),
+				"Data written on the port", []string{"id"}),
 		},
 		avgRspTime: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "avg_rsp_time"),
-				"Average response time on the port", []string{"durableID"}),
+				NomeMetrica("port", "avg_rsp_time_microseconds"),
+				"Average response time on the port", []string{"id"}),
 		},
 		avgReadRspTime: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "avg_read_rsp_time"),
-				"Average read response time on the port", []string{"durableID"}),
+				NomeMetrica("port", "avg_read_rsp_time_microseconds"),
+				"Average read response time on the port", []string{"id"}),
 		},
 		avgWriteRspTime: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port_statistics", "avg_write_rsp_time"),
-				"Average write response time on the port", []string{"durableID"}),
-		},
-		resetTime: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("port_statistics", "reset_time"),
-				"Reset time on the port", []string{"durableID"}),
-		},
-		startSampleTime: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("port_statistics", "start_sample_time"),
-				"Start sample time on the port", []string{"port", "durableID"}),
-		},
-		stopSampleTime: descMétrica{prometheus.GaugeValue,
-			NewDescritor(
-				NomeMetrica("port_statistics", "stop_sample_time"),
-				"Stop sample time on the port", []string{"durableID"}),
+				NomeMetrica("port", "avg_write_rsp_time_microseconds"),
+				"Average write response time on the port", []string{"id"}),
 		},
 		logger: logger,
 	}, nil
@@ -94,7 +72,6 @@ func (p portStatistics) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, portStats := range p.meSession.portStatistics {
-		ch <- p.bytesPerSecond.constMetric(float64(portStats.BytesPerSecondNumeric), portStats.DurableID)
 		ch <- p.numberOfReads.constMetric(float64(portStats.NumberOfReads), portStats.DurableID)
 		ch <- p.numberOfWrites.constMetric(float64(portStats.NumberOfWrites), portStats.DurableID)
 		ch <- p.dataRead.constMetric(float64(portStats.DataReadNumeric), portStats.DurableID)
@@ -102,9 +79,6 @@ func (p portStatistics) Update(ch chan<- prometheus.Metric) error {
 		ch <- p.avgRspTime.constMetric(float64(portStats.AvgRspTime), portStats.DurableID)
 		ch <- p.avgReadRspTime.constMetric(float64(portStats.AvgReadRspTime), portStats.DurableID)
 		ch <- p.avgWriteRspTime.constMetric(float64(portStats.AvgWriteRspTime), portStats.DurableID)
-		ch <- p.resetTime.constMetric(float64(portStats.ResetTimeNumeric), portStats.DurableID)
-		ch <- p.startSampleTime.constMetric(float64(portStats.StartSampleTimeNumeric), portStats.DurableID)
-		ch <- p.stopSampleTime.constMetric(float64(portStats.StopSampleTimeNumeric), portStats.DurableID)
 	}
 
 	return nil

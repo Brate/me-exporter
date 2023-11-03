@@ -6,19 +6,21 @@ import (
 )
 
 type ports struct {
-	//All metrics have port in your metrics
-	meSession       *MeMetrics
-	up              descMétrica //descMétrica is 1, and your labels is port, portType, media
+	meSession *MeMetrics
+
+	up              descMétrica
 	controller      descMétrica
 	portType        descMétrica
 	status          descMétrica
 	actualSpeed     descMétrica
 	configuredSpeed descMétrica
 	health          descMétrica
-	logger          log.Logger
+
 	//IscsiPort
 	sfpStatus  descMétrica
 	sfpPresent descMétrica
+
+	logger log.Logger
 }
 
 func init() {
@@ -35,33 +37,33 @@ func NewPortsCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 		},
 		controller: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port", "controller_numeric"),
-				"Port controller numeric", []string{"port"}),
+				NomeMetrica("port", "controller"),
+				"Port controller", []string{"port", "controller"}),
 		},
 		portType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port", "port_type_numeric"),
-				"Port type numeric", []string{"port"}),
+				NomeMetrica("port", "port_type"),
+				"Port type", []string{"port", "portType"}),
 		},
 		status: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port", "status_numeric"),
-				"Port status numeric", []string{"port"}),
+				NomeMetrica("port", "status"),
+				"Port status", []string{"port", "status"}),
 		},
 		actualSpeed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port", "actual_speed_numeric"),
-				"Port actual speed numeric", []string{"port"}),
+				NomeMetrica("port", "actual_speed"),
+				"Port actual speed", []string{"port", "speed"}),
 		},
 		configuredSpeed: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port", "configured_speed_numeric"),
-				"Port configured speed numeric", []string{"port"}),
+				NomeMetrica("port", "configured_speed"),
+				"Port configured speed", []string{"port", "speed"}),
 		},
 		health: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
-				NomeMetrica("port", "health_numeric"),
-				"Port health numeric", []string{"port", "health"}),
+				NomeMetrica("port", "health"),
+				"Port health", []string{"port", "health"}),
 		},
 		//IscsiPort
 		sfpStatus: descMétrica{prometheus.GaugeValue,
@@ -85,11 +87,11 @@ func (p ports) Update(ch chan<- prometheus.Metric) error {
 
 	for _, port := range p.meSession.ports {
 		ch <- p.up.constMetric(1, port.Port, port.PortType, port.Media)
-		ch <- p.controller.constMetric(float64(port.ControllerNumeric), port.Port)
-		ch <- p.portType.constMetric(float64(port.PortTypeNumeric), port.Port)
-		ch <- p.status.constMetric(float64(port.StatusNumeric), port.Port)
-		ch <- p.actualSpeed.constMetric(float64(port.ActualSpeedNumeric), port.Port)
-		ch <- p.configuredSpeed.constMetric(float64(port.ConfiguredSpeedNumeric), port.Port)
+		ch <- p.controller.constMetric(float64(port.ControllerNumeric), port.Port, port.Controller)
+		ch <- p.portType.constMetric(float64(port.PortTypeNumeric), port.Port, port.PortType)
+		ch <- p.status.constMetric(float64(port.StatusNumeric), port.Port, port.Status)
+		ch <- p.actualSpeed.constMetric(float64(port.ActualSpeedNumeric), port.Port, port.ActualSpeed)
+		ch <- p.configuredSpeed.constMetric(float64(port.ConfiguredSpeedNumeric), port.Port, port.ConfiguredSpeed)
 		ch <- p.health.constMetric(float64(port.HealthNumeric), port.Port, port.Health)
 		//IscsiPort
 		for _, iscsiPort := range port.IscsiPort {

@@ -6,7 +6,8 @@ import (
 )
 
 type unwritableCache struct {
-	meSession             *MeMetrics
+	meSession *MeMetrics
+
 	unwritableAPercentage descMétrica
 	unwritableBPercentage descMétrica
 	logger                log.Logger
@@ -38,9 +39,9 @@ func (u unwritableCache) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	for _, unwrtCache := range u.meSession.unwritableCache {
-		ch <- u.unwritableAPercentage.constMetric(float64(unwrtCache.UnwritableAPercentage))
-		ch <- u.unwritableBPercentage.constMetric(float64(unwrtCache.UnwritableBPercentage))
+	for _, uc := range u.meSession.unwritableCache {
+		ch <- u.unwritableAPercentage.constMetric(float64(uc.UnwritableAPercentage))
+		ch <- u.unwritableBPercentage.constMetric(float64(uc.UnwritableBPercentage))
 	}
 
 	return nil

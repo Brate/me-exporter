@@ -6,7 +6,8 @@ import (
 )
 
 type volumes struct {
-	meSession                 *MeMetrics
+	meSession *MeMetrics
+
 	up                        descMétrica
 	size                      descMétrica
 	totalSize                 descMétrica
@@ -23,9 +24,10 @@ type volumes struct {
 	snapshotRetentionPriority descMétrica
 	blocks                    descMétrica
 	blockSize                 descMétrica
-	raidtype                  descMétrica
+	raidType                  descMétrica
 	health                    descMétrica
-	logger                    log.Logger
+
+	logger log.Logger
 }
 
 func init() {
@@ -117,7 +119,7 @@ func NewVolumesCollector(me *MeMetrics, logger log.Logger) (Coletor, error) {
 				NomeMetrica("volume", "block_size_bytes"),
 				"Volume blocks", []string{"name"}),
 		},
-		raidtype: descMétrica{prometheus.GaugeValue,
+		raidType: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("volume", "raid_type"),
 				"Volume raid type", []string{"name", "type"}),
@@ -155,7 +157,7 @@ func (v volumes) Update(ch chan<- prometheus.Metric) error {
 		ch <- v.snapshotRetentionPriority.constMetric(float64(vol.SnapshotRetentionPriorityNumeric), vol.VolumeName, vol.SnapshotRetentionPriority)
 		ch <- v.blocks.constMetric(float64(vol.Blocks), vol.VolumeName)
 		ch <- v.blockSize.constMetric(float64(vol.Blocksize), vol.VolumeName)
-		ch <- v.raidtype.constMetric(float64(vol.RaidtypeNumeric), vol.VolumeName, vol.Raidtype)
+		ch <- v.raidType.constMetric(float64(vol.RaidtypeNumeric), vol.VolumeName, vol.Raidtype)
 		ch <- v.health.constMetric(float64(vol.HealthNumeric), vol.VolumeName, vol.Health, vol.HealthReason)
 	}
 
