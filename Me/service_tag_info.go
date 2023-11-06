@@ -62,19 +62,19 @@ func NewMe4ServiceTagInfoFrom(body []byte) (sti []ServiceTagInfo, err error) {
 	return
 }
 
-func NewMe4ServiceTagInfoFromRequest(client *http.Client, req *http.Request) ([]ServiceTagInfo, error) {
-	resp, err := client.Do(req)
-	if err != nil {
-		return []ServiceTagInfo{}, err
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return []ServiceTagInfo{}, err
-	}
-
-	return NewMe4ServiceTagInfoFrom(body)
-}
+//func NewMe4ServiceTagInfoFromRequest(client *http.Client, req *http.Request) ([]ServiceTagInfo, error) {
+//	resp, err := client.Do(req)
+//	if err != nil {
+//		return []ServiceTagInfo{}, err
+//	}
+//
+//	body, err := io.ReadAll(resp.Body)
+//	if err != nil {
+//		return []ServiceTagInfo{}, err
+//	}
+//
+//	return NewMe4ServiceTagInfoFrom(body)
+//}
 
 func NewMe4ServiceTagInfo(url string) []ServiceTagInfo {
 	sti := &httpServiceTagInfo{}
