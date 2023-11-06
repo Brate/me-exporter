@@ -12,10 +12,8 @@ var (
 	Hash           string
 	ExporterConfig *Config
 
-	authPath       = flag.String("auth.file", "./auth.yaml", "Path to auth.yaml file.")
-	ListenAddress  = flag.String("web.listen-address", ":10005", "Address on which to expose metrics and web interface.")
-	RequestTimeout = flag.Int64("request.timeout", 5, "Timeout for HTTP requests to ME.")
-	Workers        = flag.Int64("workers", 4, "Number of collector workers to start.")
+	authPath      = flag.String("auth.file", "./auth.yaml", "Path to auth.yaml file.")
+	ListenAddress = flag.String("web.listen-address", ":10005", "Address on which to expose metrics and web interface.")
 )
 
 type Config struct {

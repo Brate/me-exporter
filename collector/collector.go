@@ -161,8 +161,6 @@ func (c *MeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(c.Coletores))
 	executionCh := make(chan CollectorExecution, len(c.Coletores))
 
-	//pool := make(chan struct{}, *config.Workers)
-
 	pool := make(chan struct{}, 1)
 	defer close(pool)
 
@@ -216,10 +214,10 @@ func (c *MeCollector) Describe(_ chan<- *prometheus.Desc) {
 
 func execute(c Coletor, ch chan<- prometheus.Metric) error {
 	return c.Update(ch)
-
 }
 
 // _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+// ME API Calls
 
 func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
 	if meMetrics.sessionKey != "" {
@@ -235,7 +233,6 @@ func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
 	}
 
 	meMetrics.client = meMetrics.NewClient()
-	//meMetrics.client.Timeout = 15 * time.Second
 	resp, err := meMetrics.client.Do(req)
 	if err != nil {
 		return errors.Errorf("request error: %s", err)
@@ -266,6 +263,7 @@ func (meMetrics *MeMetrics) Login(instance config.AuthEntry) (err error) {
 
 	return
 }
+
 func (meMetrics *MeMetrics) ServiceTag() (err error) {
 	if meMetrics.sessionKey == "" {
 		return fmt.Errorf(invalid_session)
@@ -643,7 +641,6 @@ func (meMetrics *MeMetrics) Me4Request(url string) (req *http.Request, err error
 }
 func (meMetrics *MeMetrics) NewClient() (client *http.Client) {
 	client = &http.Client{
-		//Timeout: time.Duration(*config.RequestTimeout) * time.Second,
 		Transport: &http.Transport{
 			//IdleConnTimeout: 30 * time.Second,
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
