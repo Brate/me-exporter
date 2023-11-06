@@ -45,8 +45,6 @@ type diskGroups struct {
 	poolSectorFormat          descMétrica
 	health                    descMétrica
 	logger                    log.Logger
-
-	// TODO: Insert unHealthyComponent struct (to be created)
 }
 
 func init() {

@@ -16,8 +16,7 @@ type poolStatistics struct {
 	numColdPageMoves              descMétrica
 
 	// TierStatistics
-	// TODO: Add Response time metrics on TierStatistics
-	Tier           descMétrica
+	tier           descMétrica
 	pagesReclaimed descMétrica
 
 	logger log.Logger
@@ -62,7 +61,7 @@ func NewPoolStatisticsCollector(me *MeMetrics, logger log.Logger) (Coletor, erro
 		},
 
 		// TierStatistics
-		Tier: descMétrica{prometheus.GaugeValue,
+		tier: descMétrica{prometheus.GaugeValue,
 			NewDescritor(
 				NomeMetrica("pool_statistics", "tier"),
 				"Tier", []string{"pool", "tier"}),
@@ -98,7 +97,7 @@ func (p poolStatistics) Update(ch chan<- prometheus.Metric) error {
 
 func (p poolStatistics) collectTierStatistics(ch chan<- prometheus.Metric, pool Me.PoolStatistics) {
 	for _, tier := range pool.TierStatistics {
-		ch <- p.Tier.constMetric(float64(tier.TierNumeric), pool.Pool, tier.Tier)
+		ch <- p.tier.constMetric(float64(tier.TierNumeric), pool.Pool, tier.Tier)
 		ch <- p.pagesReclaimed.constMetric(float64(tier.PagesReclaimed), pool.Pool, tier.Tier)
 	}
 }

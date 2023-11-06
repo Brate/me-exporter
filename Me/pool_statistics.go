@@ -86,5 +86,3 @@ func NewMe4PoolStatistics(url string) []PoolStatistics {
 	}
 	return ps.PoolStatistics
 }
-
-// TODO: NewMe4PoolStatisticsFrom
